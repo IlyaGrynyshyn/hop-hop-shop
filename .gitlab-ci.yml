@@ -9,7 +9,8 @@ Build:
   stage: build
   only:
     - main
-    - dev
+    - stage
+    - develop
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
@@ -24,5 +25,6 @@ Deploy:
     BACK_VERSION: $CI_COMMIT_SHA
   only:
     - main
-    - dev
+    - stage
+    - develop
   trigger: team-challenge/e-com/e-com-deployment
