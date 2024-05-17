@@ -1,7 +1,6 @@
 from django.test import TestCase
 from .models import Category, Product, ProductImage, ProductAttributes
 
-
 class CategoryModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -14,8 +13,9 @@ class CategoryModelTest(TestCase):
 
     def test_name_unique(self):
         category = Category.objects.create(name='Test Category')
+        category_duplicate = Category(name='Test Category')
         with self.assertRaises(Exception):
-            category.save()
+            category_duplicate.full_clean()
 
     def test_name_max_length(self):
         category = Category.objects.get(id=1)
@@ -26,7 +26,6 @@ class CategoryModelTest(TestCase):
         category = Category.objects.get(id=1)
         expected_object_name = category.name
         self.assertEqual(expected_object_name, str(category))
-
 
 class ProductModelTest(TestCase):
     @classmethod
@@ -44,26 +43,24 @@ class ProductModelTest(TestCase):
         field_label = product._meta.get_field('price').verbose_name
         self.assertEqual(field_label, 'price')
 
-
 class ProductImageModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         category = Category.objects.create(name='Test Category')
         product = Product.objects.create(name='Test Product', category=category, price=100, SKU=12345, description='Test description')
-        ProductImage.objects.create(image=1, product=product)
+        ProductImage.objects.create(product=product, image='test_image.jpg')
 
     def test_image_label(self):
         product_image = ProductImage.objects.get(id=1)
         field_label = product_image._meta.get_field('image').verbose_name
         self.assertEqual(field_label, 'image')
 
-
 class ProductAttributesModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         category = Category.objects.create(name='Test Category')
         product = Product.objects.create(name='Test Product', category=category, price=100, SKU=12345, description='Test description')
-        ProductAttributes.objects.create(brand=1, material=1, style=1, size=1, product=product)
+        ProductAttributes.objects.create(brand='Test Brand', material='Test Material', style='Test Style', size='Test Size', product=product)
 
     def test_brand_label(self):
         product_attributes = ProductAttributes.objects.get(id=1)

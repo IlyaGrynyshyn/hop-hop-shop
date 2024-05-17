@@ -11,16 +11,16 @@ class Category(models.Model):
 class Product(models.Model):
     name = models.CharField(max_length=100, db_index=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    price = models.IntegerField(db_index=True)
+    price = models.IntegerField()
     SKU = models.IntegerField(unique=True, db_index=True)
-    description = models.TextField(db_index=True)
+    description = models.TextField()
 
     def __str__(self):
         return self.name
 
 
 class ProductImage(models.Model):
-    image = models.IntegerField()
+    image = models.ImageField(upload_to='product_images/')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -28,9 +28,9 @@ class ProductImage(models.Model):
 
 
 class ProductAttributes(models.Model):
-    brand = models.IntegerField()
-    material = models.IntegerField()
-    style = models.IntegerField()
+    brand = models.CharField(max_length=100)
+    material = models.CharField(max_length=100)
+    style = models.CharField(max_length=100)
     size = models.IntegerField()
     product = models.OneToOneField(Product, on_delete=models.CASCADE)
 
