@@ -1,4 +1,15 @@
+import os
+import uuid
+
 from django.db import models
+from pytils.translit import slugify
+
+
+def product_image_file_path(instance, filename):
+    _, extension = os.path.splitext(filename)
+    filename = f"{slugify(instance.product.title)}-{uuid.uuid4()}{extension}"
+
+    return os.path.join("uploads/products/", filename)
 
 
 class Category(models.Model):
@@ -7,6 +18,11 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        return super().save(*args, **kwargs)
 
 
 class Product(models.Model):
@@ -20,13 +36,31 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        return super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "Product"
+        verbose_name_plural = "Products"
+        ordering = ["id"]
+
 
 class ProductImage(models.Model):
-    image = models.ImageField(upload_to="product_images/")
+    image = models.ImageField(
+        null=True,
+        blank=True,
+        upload_to=product_image_file_path,
+        max_length=255,
+    )
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"Image for {self.product.name}"
+
+    class Meta:
+        ordering = ["id"]
 
 
 class ProductAttributes(models.Model):
