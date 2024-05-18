@@ -6,6 +6,8 @@ click==8.1.7
 cloudinary==1.40.0
 Django==5.0.6
 django-cloudinary-storage==0.3.0
+factory-boy==3.3.0
+Faker==25.2.0
 gunicorn==22.0.0
 idna==3.7
 mypy-extensions==1.0.0
@@ -13,6 +15,9 @@ packaging==24.0
 pathspec==0.12.1
 pillow==10.3.0
 platformdirs==4.2.1
+python-dateutil==2.9.0.post0
+python-dotenv==1.0.1
+pytils==0.4.1
 requests==2.31.0
 six==1.16.0
 sqlparse==0.5.0
