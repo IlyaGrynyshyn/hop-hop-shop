@@ -26,8 +26,6 @@ Deploy_Dev:
   only:
     - develop
   trigger: team-challenge/e-com/e-com-deployment
-  strategy: depend
-
 
 Deploy_Stage:
   stage: deploy
@@ -36,8 +34,6 @@ Deploy_Stage:
   only:
     - stage
   trigger: team-challenge/e-com/e-com-deployment
-  strategy: depend
-
 
 Deploy_Main:
   stage: deploy
@@ -46,5 +42,3 @@ Deploy_Main:
   only:
     - main
   trigger: team-challenge/e-com/e-com-deployment
-  strategy: depend
-
