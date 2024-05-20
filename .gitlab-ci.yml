@@ -19,12 +19,32 @@ Build:
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - docker push $CI_REGISTRY_IMAGE:latest
 
-Deploy:
+Deploy_Dev:
   stage: deploy
   variables:
-    BACK_VERSION: $CI_COMMIT_SHA
+    BACK_DEV_VERSION: dev_latest
   only:
-    - main
-    - stage
     - develop
   trigger: team-challenge/e-com/e-com-deployment
+  strategy: depend
+
+
+Deploy_Stage:
+  stage: deploy
+  variables:
+    BACK_STAGE_VERSION: stage_latest
+  only:
+    - stage
+  trigger: team-challenge/e-com/e-com-deployment
+  strategy: depend
+
+
+Deploy_Main:
+  stage: deploy
+  variables:
+    BACK_MAIN_VERSION: main_latest
+  only:
+    - main
+  trigger: team-challenge/e-com/e-com-deployment
+  strategy: depend
+
