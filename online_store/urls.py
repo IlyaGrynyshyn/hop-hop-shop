@@ -15,5 +15,5 @@ urlpatterns = [
     ),
     path("admin/", admin.site.urls),
     path("api/email-subscription", include("email_subscription.urls")),
-    path('', include('shop.urls')),
+    path("api/shop/", include("shop.urls")),
 ]
