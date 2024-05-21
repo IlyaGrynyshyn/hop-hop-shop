@@ -20,5 +20,5 @@ from django.urls import path, include
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("email-subscription", include("email_subscription.urls")),
+    path("api/email-subscription", include("email_subscription.urls")),
 ]
