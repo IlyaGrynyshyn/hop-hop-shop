@@ -5,19 +5,19 @@ from .models import Category, Product, ProductAttributes
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ['id', 'name', 'slug']
+        fields = ["id", "name", "slug"]
 
 
 class ProductAttributesSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductAttributes
-        fields = ['id', 'brand', 'material', 'style', 'size', 'product']
+        fields = ["id", "brand", "material", "style", "size", "product"]
 
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ['id', 'name', 'slug', 'price', 'SKU', 'description', 'category']
+        fields = ["id", "name", "slug", "price", "SKU", "description", "category"]
 
 
 class ProductDetailSerializer(serializers.ModelSerializer):
@@ -26,4 +26,13 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ['id', 'name', 'slug', 'price', 'SKU', 'description', 'category', 'attributes']
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "price",
+            "SKU",
+            "description",
+            "category",
+            "attributes",
+        ]
