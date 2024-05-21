@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "cloudinary",
     "account",
     "shop",
+    "email_subscription",
 ]
 
 MIDDLEWARE = [
@@ -143,4 +144,3 @@ CLOUDINARY_STORAGE = {
     "API_KEY": os.getenv("API_KEY"),
     "API_SECRET": os.getenv("API_SECRET"),
 }
-
