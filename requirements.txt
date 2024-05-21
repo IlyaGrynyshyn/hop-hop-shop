@@ -1,5 +1,6 @@
 asgiref==3.8.1
 async-timeout==4.0.3
+attrs==23.2.0
 black==24.4.2
 certifi==2024.2.2
 charset-normalizer==3.3.2
@@ -9,10 +10,14 @@ Django==5.0.6
 django-cloudinary-storage==0.3.0
 django-redis==5.4.0
 djangorestframework==3.15.1
+drf-spectacular==0.27.2
 factory-boy==3.3.0
 Faker==25.2.0
 gunicorn==22.0.0
 idna==3.7
+inflection==0.5.1
+jsonschema==4.22.0
+jsonschema-specifications==2023.12.1
 mypy-extensions==1.0.0
 packaging==24.0
 pathspec==0.12.1
@@ -22,11 +27,15 @@ psycopg2-binary==2.9.9
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
 pytils==0.4.1
+PyYAML==6.0.1
 redis==5.0.4
+referencing==0.35.1
 requests==2.31.0
+rpds-py==0.18.1
 six==1.16.0
 sqlparse==0.5.0
 tomli==2.0.1
 typing_extensions==4.11.0
+uritemplate==4.1.1
 urllib3==2.2.1
 whitenoise==6.6.0
