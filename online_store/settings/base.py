@@ -41,10 +41,13 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
+    "drf_spectacular",
     "cloudinary_storage",
     "cloudinary",
     "account",
     "shop",
+    "email_subscription",
 ]
 
 MIDDLEWARE = [
@@ -144,3 +147,18 @@ CLOUDINARY_STORAGE = {
     "API_SECRET": os.getenv("API_SECRET"),
 }
 
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Hop Hop Shop API",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SWAGGER_UI_SETTINGS": {
+        "deepLinking": True,
+        "defaultModelRendering": "model",
+        "defaultModelsExpandDepth": 2,
+        "defaultModelExpandDepth": 2,
+    },
+}
+
+REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
