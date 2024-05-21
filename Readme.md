@@ -22,6 +22,18 @@ Python must be already installed.
 3. **Registration/Login:**
     - To access all functionalities of the project, create super user and log in to your account.
 
+## Configure environment variables
+
+Before running the project, create a `.env` file based on the `env.sample` file and fill in all the necessary variables.
+
+### Steps to Create the .env File
+
+1. Copy the `env.sample` file and rename it to `.env`:
+    ```sh
+    cp env.sample .env
+    ```
+
+2. Open the `.env` file in a text editor and fill in the variable values.
 
 ## Docker
 
