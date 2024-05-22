@@ -5,26 +5,62 @@ stages:
   - test
   - deploy
 
-Build:
+Build Dev:
   stage: build
   only:
-    - main
-    - stage
     - develop
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-    - docker pull $CI_REGISTRY_IMAGE:latest || true
-    - docker build --cache-from $CI_REGISTRY_IMAGE:latest --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --tag $CI_REGISTRY_IMAGE:latest .
+    - docker pull $CI_REGISTRY_IMAGE:dev_latest || true
+    - docker build --cache-from $CI_REGISTRY_IMAGE:dev_latest --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --tag $CI_REGISTRY_IMAGE:dev_latest .
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
-    - docker push $CI_REGISTRY_IMAGE:latest
+    - docker push $CI_REGISTRY_IMAGE:dev_latest
 
-Deploy:
+Deploy Dev:
   stage: deploy
   variables:
-    BACK_VERSION: $CI_COMMIT_SHA
+    BACK_DEV_VERSION: dev_latest
+  only:
+    - develop
+  trigger: team-challenge/e-com/e-com-deployment
+
+Build Stage:
+  stage: build
+  only:
+    - stage
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker pull $CI_REGISTRY_IMAGE:stage_latest || true
+    - docker build --cache-from $CI_REGISTRY_IMAGE:stage_latest --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --tag $CI_REGISTRY_IMAGE:stage_latest .
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker push $CI_REGISTRY_IMAGE:stage_latest
+
+Deploy_Stage:
+  stage: deploy
+  variables:
+    BACK_STAGE_VERSION: stage_latest
+  only:
+    - stage
+  trigger: team-challenge/e-com/e-com-deployment
+
+Build Prod:
+  stage: build
   only:
     - main
-    - stage
-    - develop
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker pull $CI_REGISTRY_IMAGE:prod_latest || true
+    - docker build --cache-from $CI_REGISTRY_IMAGE:prod_latest --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --tag $CI_REGISTRY_IMAGE:prod_latest .
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker push $CI_REGISTRY_IMAGE:prod_latest
+
+Deploy_Main:
+  stage: deploy
+  variables:
+    BACK_MAIN_VERSION: prod_latest
+  only:
+    - main
   trigger: team-challenge/e-com/e-com-deployment
