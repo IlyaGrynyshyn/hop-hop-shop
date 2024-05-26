@@ -4,7 +4,7 @@ services:
   web:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile-local
     command: >
       sh -c  "
       python manage.py wait_for_db &&
