@@ -23,7 +23,7 @@ Deploy Dev:
     BACK_DEV_VERSION: dev_latest
   only:
     - develop
-  trigger: team-challenge/e-com/e-com-deployment
+  trigger: team-challenge/e-com/e-com-back-deployment
 
 Build Stage:
   stage: build
@@ -43,7 +43,7 @@ Deploy_Stage:
     BACK_STAGE_VERSION: stage_latest
   only:
     - stage
-  trigger: team-challenge/e-com/e-com-deployment
+  trigger: team-challenge/e-com/e-com-back-deployment
 
 Build Prod:
   stage: build
@@ -63,4 +63,4 @@ Deploy_Main:
     BACK_MAIN_VERSION: prod_latest
   only:
     - main
-  trigger: team-challenge/e-com/e-com-deployment
+  trigger: team-challenge/e-com/e-com-back-deployment
