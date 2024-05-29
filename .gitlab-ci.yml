@@ -20,10 +20,10 @@ Build Dev:
 Deploy Dev:
   stage: deploy
   variables:
-    BACK_DEV_VERSION: back_dev_latest
+    BACK_DEV_VERSION: dev_latest
   only:
     - develop
-  trigger: team-challenge/e-com/e-com-deployment
+  trigger: team-challenge/e-com/e-com-back-deployment
 
 Build Stage:
   stage: build
@@ -40,10 +40,10 @@ Build Stage:
 Deploy_Stage:
   stage: deploy
   variables:
-    BACK_STAGE_VERSION: back_stage_latest
+    BACK_STAGE_VERSION: stage_latest
   only:
     - stage
-  trigger: team-challenge/e-com/e-com-deployment
+  trigger: team-challenge/e-com/e-com-back-deployment
 
 Build Prod:
   stage: build
@@ -60,7 +60,7 @@ Build Prod:
 Deploy_Main:
   stage: deploy
   variables:
-    BACK_MAIN_VERSION: back_prod_latest
+    BACK_MAIN_VERSION: prod_latest
   only:
     - main
-  trigger: team-challenge/e-com/e-com-deployment
+  trigger: team-challenge/e-com/e-com-back-deployment
