@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from .models import Category, Product
 from .serializers import CategorySerializer, ProductSerializer, ProductDetailSerializer
 
@@ -17,3 +19,16 @@ class ProductViewSet(viewsets.ModelViewSet):
         if self.action == "retrieve":
             return ProductDetailSerializer
         return ProductSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.views += 1
+        instance.save()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=["get"])
+    def popular(self, request):
+        popular_products = Product.objects.order_by("-views")[:30]
+        serializer = self.get_serializer(popular_products, many=True)
+        return Response(serializer.data)
