@@ -32,6 +32,7 @@ class Product(models.Model):
     price = models.IntegerField()
     SKU = models.IntegerField(unique=True, db_index=True)
     description = models.TextField()
+    views = models.IntegerField(default=0)
 
     def __str__(self):
         return self.name
