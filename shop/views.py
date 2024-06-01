@@ -29,6 +29,12 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["get"])
     def popular(self, request):
+        """
+        Retrieve the top 30 most viewed products.
+
+        Returns:
+            Response: Serialized data of the top 30 most viewed products.
+        """
         popular_products = Product.objects.order_by("-views")[:30]
         serializer = self.get_serializer(popular_products, many=True)
         return Response(serializer.data)
