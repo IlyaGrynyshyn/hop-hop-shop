@@ -12,6 +12,6 @@ chmod go+rw /usr/src/app/.env
 python /usr/src/app/manage.py wait_for_db &&
 python /usr/src/app/manage.py migrate &&
 python /usr/src/app/manage.py collectstatic --noinput &&
-gunicorn /usr/src/app/online_store.wsgi:application --bind 0.0.0.0:80
+gunicorn online_store.wsgi:application --bind 0.0.0.0:80
 
 
