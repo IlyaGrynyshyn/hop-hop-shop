@@ -18,12 +18,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = bool(int(os.getenv("DEBUG", "0")))
 
 ALLOWED_HOSTS = []
-ALLOWED_HOSTS.extend(
-    filter(
-        None,
-        os.environ.get('ALLOWED_HOSTS', '').split(',')
-    )
-)
+ALLOWED_HOSTS.extend(filter(None, os.environ.get("ALLOWED_HOSTS", "").split(",")))
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -36,7 +31,7 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "cloudinary_storage",
     "cloudinary",
-    "account",
+    "authentication",
     "shop",
     "email_subscription",
 ]
@@ -144,6 +139,7 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.RawMediaCloudinaryStorage"
 
+AUTH_USER_MODEL = "authentication.Customer"
 
 CLOUDINARY_STORAGE = {
     "CLOUD_NAME": os.getenv("CLOUD_NAME"),
