@@ -20,6 +20,8 @@ DEBUG = bool(int(os.getenv("DEBUG", "0")))
 ALLOWED_HOSTS = []
 ALLOWED_HOSTS.extend(filter(None, os.environ.get("ALLOWED_HOSTS", "").split(",")))
 
+CSRF_TRUSTED_ORIGINS = ['*.aisolv.net']
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
