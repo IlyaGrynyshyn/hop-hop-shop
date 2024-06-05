@@ -169,5 +169,3 @@ CORS_ALLOWED_ORIGINS = []
 CORS_ALLOWED_ORIGINS.extend(
     filter(None, os.environ.get("CORS_ALLOWED_ORIGINS", "").split(","))
 )
-
-print(CORS_ALLOWED_ORIGINS)
