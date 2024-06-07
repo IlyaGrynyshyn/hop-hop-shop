@@ -20,7 +20,7 @@ DEBUG = bool(int(os.getenv("DEBUG", "0")))
 ALLOWED_HOSTS = []
 ALLOWED_HOSTS.extend(filter(None, os.environ.get("ALLOWED_HOSTS", "").split(",")))
 
-CSRF_TRUSTED_ORIGINS = ['https://*.aisolv.net']
+CSRF_TRUSTED_ORIGINS = ["https://*.aisolv.net"]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework_simplejwt",
     "rest_framework",
+    "drf_standardized_errors",
     "corsheaders",
     "drf_spectacular",
     "cloudinary_storage",
@@ -170,8 +171,13 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    "EXCEPTION_HANDLER": "drf_standardized_errors.handler.exception_handler",
+    "DEFAULT_RENDERER_CLASSES": ("utils.renderers.SuccessJsonResponsee",),
 }
 
+DRF_STANDARDIZED_ERRORS = {
+    "EXCEPTION_FORMATTER_CLASS": "utils.standardized_errors.MyExceptionFormatter"
+}
 CORS_ALLOWED_ORIGINS = []
 CORS_ALLOWED_ORIGINS.extend(
     filter(None, os.environ.get("CORS_ALLOWED_ORIGINS", "").split(","))

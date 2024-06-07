@@ -15,6 +15,7 @@ django-rest-passwordreset==1.4.1
 djangorestframework==3.15.1
 djangorestframework-simplejwt==5.3.1
 drf-spectacular==0.27.2
+drf-standardized-errors==0.13.0
 factory-boy==3.3.0
 Faker==25.2.0
 gunicorn==22.0.0
