@@ -2,10 +2,10 @@ from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import View
 from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from django.db import transaction
-from .models import Cart, CartItem, Order, OrderItem
-from .serializers import CartSerializer, CartItemSerializer, OrderSerializer
+from rest_framework.views import APIView
+from .models import Cart, CartItem
+from .serializers import CartSerializer, CartItemSerializer
 from shop.models import Product
 
 
@@ -88,42 +88,3 @@ class RemoveFromCartView(View):
             if cart_item.cart.session_key == session_key:
                 cart_item.delete()
         return redirect("cart_detail")
-
-
-class CheckoutView(APIView):
-    def post(self, request):
-        if request.user.is_authenticated:
-            cart = get_object_or_404(Cart, user=request.user)
-        else:
-            session_key = request.session.session_key
-            if not session_key:
-                request.session.create()
-                session_key = request.session.session_key
-            cart = get_object_or_404(Cart, session_key=session_key)
-
-        if cart.items.count() == 0:
-            return Response(
-                {"error": "Cart is empty"}, status=status.HTTP_400_BAD_REQUEST
-            )
-
-        with transaction.atomic():
-            order = Order.objects.create(user=request.user)
-            for cart_item in cart.items.all():
-                if cart_item.product.stock < cart_item.quantity:
-                    return Response(
-                        {"error": f"Not enough stock for {cart_item.product.name}"},
-                        status=status.HTTP_400_BAD_REQUEST,
-                    )
-                OrderItem.objects.create(
-                    order=order,
-                    product=cart_item.product,
-                    quantity=cart_item.quantity,
-                    price=cart_item.product.price,
-                )
-                cart_item.product.stock -= cart_item.quantity
-                cart_item.product.save()
-            cart.items.all().delete()
-
-        return Response(
-            {"success": "Order placed", "order_id": order.id}, status=status.HTTP_200_OK
-        )
