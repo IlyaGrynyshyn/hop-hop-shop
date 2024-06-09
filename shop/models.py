@@ -15,6 +15,12 @@ def product_image_file_path(instance, filename):
 class Category(models.Model):
     name = models.CharField(max_length=100, db_index=True)
     slug = models.SlugField(max_length=255, unique=True)
+    image = models.ImageField(
+        null=True,
+        blank=True,
+        upload_to="uploads/category/",
+        max_length=255,
+    )
 
     def __str__(self):
         return self.name
