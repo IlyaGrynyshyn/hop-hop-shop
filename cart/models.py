@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.conf import settings
 from shop.models import Product
@@ -5,7 +6,7 @@ from shop.models import Product
 
 class Cart(models.Model):
     user = models.OneToOneField(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True
+        get_user_model(), on_delete=models.CASCADE, null=True, blank=True
     )
     session_key = models.CharField(max_length=40, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -13,7 +14,7 @@ class Cart(models.Model):
 
     def __str__(self):
         if self.user:
-            return f"Cart of {self.user.username}"
+            return f"Cart of {self.user.email}"
         return f"Cart with session {self.session_key}"
 
     def total_price(self):

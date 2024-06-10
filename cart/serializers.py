@@ -20,9 +20,9 @@ class CartSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "user",
-            "created_at",
-            "updated_at",
             "items",
             "total_price",
             "item_count",
+            "created_at",
+            "updated_at",
         ]
