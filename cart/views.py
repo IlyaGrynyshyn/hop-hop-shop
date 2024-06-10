@@ -1,11 +1,10 @@
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import View
-from rest_framework import generics, status
+from rest_framework import generics
 from rest_framework.response import Response
-from django.db import transaction
 from rest_framework.views import APIView
-from .models import Cart, CartItem
-from .serializers import CartSerializer, CartItemSerializer
+from cart.models import Cart, CartItem
+from cart.serializers import CartSerializer, CartItemSerializer
 from shop.models import Product
 
 
@@ -36,10 +35,6 @@ class AddToCartView(APIView):
             cart, created = Cart.objects.get_or_create(session_key=session_key)
 
         product = get_object_or_404(Product, id=product_id)
-        if product.stock <= 0:
-            return Response(
-                {"error": "Product out of stock"}, status=status.HTTP_400_BAD_REQUEST
-            )
 
         cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
         if not created:
@@ -65,12 +60,6 @@ class UpdateCartView(generics.UpdateAPIView):
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop("partial", False)
         instance = self.get_object()
-        new_quantity = request.data.get("quantity", instance.quantity)
-        if instance.product.stock < new_quantity:
-            return Response(
-                {"error": "Not enough stock available"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
