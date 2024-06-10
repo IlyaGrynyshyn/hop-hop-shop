@@ -1,7 +1,8 @@
 import os
 from pathlib import Path
-
 from dotenv import load_dotenv
+
+from utils.settings_utils import add_prefix_to_allowed_hosts
 
 load_dotenv()  # take environment variables from .env.
 
@@ -20,7 +21,10 @@ DEBUG = bool(int(os.getenv("DEBUG", "0")))
 ALLOWED_HOSTS = []
 ALLOWED_HOSTS.extend(filter(None, os.environ.get("ALLOWED_HOSTS", "").split(",")))
 
-CSRF_TRUSTED_ORIGINS = ["https://*.aisolv.net"]
+
+CORS_ALLOWED_ORIGINS = add_prefix_to_allowed_hosts(os.environ.get("ALLOWED_HOSTS", ""))
+CSRF_TRUSTED_ORIGINS = add_prefix_to_allowed_hosts(os.environ.get("ALLOWED_HOSTS", ""))
+
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -76,7 +80,6 @@ WSGI_APPLICATION = "online_store.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-import dj_database_url
 
 
 DATABASES = {
@@ -128,7 +131,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
@@ -178,7 +180,3 @@ REST_FRAMEWORK = {
 DRF_STANDARDIZED_ERRORS = {
     "EXCEPTION_FORMATTER_CLASS": "utils.standardized_errors.MyExceptionFormatter"
 }
-CORS_ALLOWED_ORIGINS = []
-CORS_ALLOWED_ORIGINS.extend(
-    filter(None, os.environ.get("CORS_ALLOWED_ORIGINS", "").split(","))
-)
