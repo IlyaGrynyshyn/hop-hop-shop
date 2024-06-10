@@ -65,7 +65,9 @@ class ProductImage(models.Model):
         upload_to=product_image_file_path,
         max_length=255,
     )
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name="product_images"
+    )
 
     def __str__(self):
         return f"Image for {self.product.name}"
