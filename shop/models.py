@@ -30,6 +30,9 @@ class Category(models.Model):
             self.slug = slugify(self.name)
         return super().save(*args, **kwargs)
 
+    class Meta:
+        app_label = "shop"
+
 
 class Product(models.Model):
     name = models.CharField(max_length=100, db_index=True)
@@ -51,6 +54,7 @@ class Product(models.Model):
     class Meta:
         verbose_name = "Product"
         verbose_name_plural = "Products"
+        app_label = "shop"
         ordering = ["id"]
 
 
@@ -68,6 +72,7 @@ class ProductImage(models.Model):
 
     class Meta:
         ordering = ["id"]
+        app_label = "shop"
 
 
 class ProductAttributes(models.Model):
@@ -79,3 +84,6 @@ class ProductAttributes(models.Model):
 
     def __str__(self):
         return f"Attributes for {self.product.name}"
+
+    class Meta:
+        app_label = "shop"
