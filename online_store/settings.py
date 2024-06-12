@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "rest_framework",
     "drf_standardized_errors",
+    "django_filters",
     "corsheaders",
     "drf_spectacular",
     "cloudinary_storage",
@@ -175,6 +176,7 @@ REST_FRAMEWORK = {
     ),
     "EXCEPTION_HANDLER": "drf_standardized_errors.handler.exception_handler",
     "DEFAULT_RENDERER_CLASSES": ("utils.renderers.SuccessJsonResponsee",),
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
 }
 
 DRF_STANDARDIZED_ERRORS = {
