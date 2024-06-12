@@ -1,9 +1,15 @@
-from django.shortcuts import render
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .models import Category, Product
-from .serializers import CategorySerializer, ProductSerializer, ProductDetailSerializer
+from shop.models import Category, Product
+from shop.serializers import (
+    CategorySerializer,
+    ProductSerializer,
+    ProductDetailSerializer,
+)
+from django_filters.rest_framework import DjangoFilterBackend
+from shop.filters import ProductFilter
+from drf_spectacular.utils import extend_schema, OpenApiParameter, extend_schema_view
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -11,9 +17,23 @@ class CategoryViewSet(viewsets.ModelViewSet):
     serializer_class = CategorySerializer
 
 
+@extend_schema_view(
+    list=extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="category",
+                description="Specify the category slug to filter the products.",
+                required=False,
+                type=str,
+            ),
+        ]
+    )
+)
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ProductFilter
 
     def get_serializer_class(self):
         if self.action == "retrieve":
