@@ -17,27 +17,44 @@ class CategorySerializer(serializers.ModelSerializer):
 class ProductAttributesSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductAttributes
-        fields = ["id", "brand", "material", "style", "size", "product"]
+        fields = ["brand", "material", "style", "size"]
 
 
 class ProductSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
-    product_image = ProductImageSerializer(
-        many=True, read_only=True, source="product_images"
-    )
+    images = ProductImageSerializer(many=True, read_only=True, source="product_images")
+    product_attributes = ProductAttributesSerializer(required=False)
 
     class Meta:
         model = Product
         fields = [
             "id",
             "name",
+            "category",
             "slug",
             "price",
             "SKU",
             "description",
-            "category",
-            "product_image",
+            "views",
+            "images",
+            "product_attributes",
         ]
+        read_only_fields = ["slug", "views"]
+
+    def create(self, validated_data):
+        product_images_data = validated_data.pop("product_images", [])
+        product_attributes_data = validated_data.pop("product_attributes", None)
+
+        product = Product.objects.create(**validated_data)
+
+        for image_data in product_images_data:
+            ProductImage.objects.create(product=product, **image_data)
+
+        if product_attributes_data:
+            product_attributes_data["product"] = product
+            ProductAttributes.objects.create(**product_attributes_data)
+
+        return product
 
 
 class ProductDetailSerializer(serializers.ModelSerializer):
