@@ -12,6 +12,17 @@ class Cart(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def merge_with(self, other_cart):
+        for item in other_cart.items.all():
+            existing_item = self.items.filter(product=item.product).first()
+            if existing_item:
+                existing_item.quantity += item.quantity
+                existing_item.save()
+            else:
+                item.cart = self
+                item.save()
+        other_cart.delete()
+
     def __str__(self):
         if self.user:
             return f"Cart of {self.user.email}"
