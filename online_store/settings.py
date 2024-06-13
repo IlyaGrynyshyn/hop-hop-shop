@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 from utils.settings_utils import add_prefix_to_allowed_hosts
