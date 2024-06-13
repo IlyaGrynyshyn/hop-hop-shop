@@ -49,6 +49,11 @@ class ProductSerializer(serializers.ModelSerializer):
 
         return product
 
+    def validate_price(self, value):
+        if value <= 0:
+            raise serializers.ValidationError("Price must be greater than 0.")
+        return value
+
 
 class ProductDetailSerializer(serializers.ModelSerializer):
     attributes = ProductAttributesSerializer(read_only=True)
