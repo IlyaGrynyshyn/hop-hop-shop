@@ -41,14 +41,8 @@ class ProductSerializer(serializers.ModelSerializer):
         read_only_fields = ["slug", "views"]
 
     def create(self, validated_data):
-        # product_images_data = validated_data.pop("product_images", [])
         product_attributes_data = validated_data.pop("product_attributes", None)
-
         product = Product.objects.create(**validated_data)
-
-        # for image_data in product_images_data:
-        #     ProductImage.objects.create(product=product, **image_data)
-
         if product_attributes_data:
             product_attributes_data["product"] = product
             ProductAttributes.objects.create(**product_attributes_data)
