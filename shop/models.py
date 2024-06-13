@@ -15,6 +15,12 @@ def product_image_file_path(instance, filename):
 class Category(models.Model):
     name = models.CharField(max_length=100, db_index=True)
     slug = models.SlugField(max_length=255, unique=True)
+    image = models.ImageField(
+        null=True,
+        blank=True,
+        upload_to="uploads/category/",
+        max_length=255,
+    )
 
     def __str__(self):
         return self.name
@@ -23,6 +29,9 @@ class Category(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
         return super().save(*args, **kwargs)
+
+    class Meta:
+        app_label = "shop"
 
 
 class Product(models.Model):
@@ -45,6 +54,7 @@ class Product(models.Model):
     class Meta:
         verbose_name = "Product"
         verbose_name_plural = "Products"
+        app_label = "shop"
         ordering = ["id"]
 
 
@@ -55,13 +65,16 @@ class ProductImage(models.Model):
         upload_to=product_image_file_path,
         max_length=255,
     )
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name="product_images"
+    )
 
     def __str__(self):
         return f"Image for {self.product.name}"
 
     class Meta:
         ordering = ["id"]
+        app_label = "shop"
 
 
 class ProductAttributes(models.Model):
@@ -73,3 +86,6 @@ class ProductAttributes(models.Model):
 
     def __str__(self):
         return f"Attributes for {self.product.name}"
+
+    class Meta:
+        app_label = "shop"

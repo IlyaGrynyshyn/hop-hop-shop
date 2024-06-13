@@ -16,5 +16,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/email-subscription", include("email_subscription.urls")),
     path("api/shop/", include("shop.urls")),
-    path("api/cart/", include("cart.urls")),
+    path("api/auth/", include("authentication.urls")),
 ]
