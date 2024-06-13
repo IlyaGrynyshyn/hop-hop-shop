@@ -1,7 +1,7 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from shop.models import Category, Product
+from shop.models import Category, Product, ProductImage
 from shop.serializers import (
     CategorySerializer,
     ProductSerializer,
@@ -58,3 +58,14 @@ class ProductViewSet(viewsets.ModelViewSet):
         popular_products = Product.objects.order_by("-views")[:30]
         serializer = self.get_serializer(popular_products, many=True)
         return Response(serializer.data)
+
+    @action(detail=True, methods=["post"], url_path="upload-images")
+    def upload_images(self, request, pk=None):
+        product = self.get_object()
+        uploaded_images = request.FILES.getlist("uploaded_images")
+
+        for image in uploaded_images:
+            ProductImage.objects.create(product=product, image=image)
+
+        serializer = ProductSerializer(product)
+        return Response(serializer.data, status=status.HTTP_200_OK)
