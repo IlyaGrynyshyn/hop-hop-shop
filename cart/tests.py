@@ -7,6 +7,7 @@ from cart.models import Cart, CartItem
 
 class CartTestCase(TestCase):
     def setUp(self):
+        self.client = Client()
         self.user = get_user_model().objects.create_user(
             username="testuser", password="testpass"
         )
@@ -48,19 +49,15 @@ class CartTestCase(TestCase):
             size=2,
         )
 
-        self.client = Client()
-
     def test_add_to_cart(self):
-        self.client.login(username="testuser", password="testpass")
         response = self.client.post(reverse("add_to_cart", args=[self.product1.id]))
         self.assertEqual(response.status_code, 302)
-        cart = Cart.objects.get(user=self.user)
+        cart = Cart.objects.get(session_key=self.client.session.session_key)
         self.assertEqual(cart.items.count(), 1)
         self.assertEqual(cart.items.first().product, self.product1)
         self.assertEqual(cart.items.first().quantity, 1)
 
     def test_view_cart(self):
-        self.client.login(username="testuser", password="testpass")
         self.client.post(reverse("add_to_cart", args=[self.product1.id]))
         response = self.client.get(reverse("cart_detail"))
         self.assertEqual(response.status_code, 200)
@@ -68,9 +65,10 @@ class CartTestCase(TestCase):
         self.assertContains(response, "10")
 
     def test_update_cart(self):
-        self.client.login(username="testuser", password="testpass")
         self.client.post(reverse("add_to_cart", args=[self.product1.id]))
-        cart_item = CartItem.objects.get(cart__user=self.user, product=self.product1)
+        cart_item = CartItem.objects.get(
+            cart__session_key=self.client.session.session_key, product=self.product1
+        )
         response = self.client.patch(
             reverse("update_cart", args=[cart_item.id]),
             {"quantity": 5},
@@ -81,10 +79,31 @@ class CartTestCase(TestCase):
         self.assertEqual(cart_item.quantity, 5)
 
     def test_remove_from_cart(self):
-        self.client.login(username="testuser", password="testpass")
         self.client.post(reverse("add_to_cart", args=[self.product1.id]))
-        cart_item = CartItem.objects.get(cart__user=self.user, product=self.product1)
+        cart_item = CartItem.objects.get(
+            cart__session_key=self.client.session.session_key, product=self.product1
+        )
         response = self.client.post(reverse("remove_from_cart", args=[cart_item.id]))
         self.assertEqual(response.status_code, 302)
-        cart = Cart.objects.get(user=self.user)
+        cart = Cart.objects.get(session_key=self.client.session.session_key)
         self.assertEqual(cart.items.count(), 0)
+
+    def test_merge_carts_on_login(self):
+        # Добавление товара в сессионную корзину
+        session = self.client.session
+        session.create()
+        session.save()
+        session_key = session.session_key
+        session_cart, created = Cart.objects.get_or_create(session_key=session_key)
+        CartItem.objects.create(cart=session_cart, product=self.product1, quantity=2)
+
+        self.client.login(username="testuser", password="testpass")
+        user_cart, created = Cart.objects.get_or_create(user=self.user)
+        CartItem.objects.create(cart=user_cart, product=self.product2, quantity=1)
+
+        response = self.client.get(reverse("cart_detail"))
+        self.assertEqual(response.status_code, 200)
+        cart = Cart.objects.get(user=self.user)
+        self.assertEqual(cart.items.count(), 2)
+        self.assertEqual(cart.items.get(product=self.product1).quantity, 2)
+        self.assertEqual(cart.items.get(product=self.product2).quantity, 1)

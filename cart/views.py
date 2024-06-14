@@ -78,23 +78,3 @@ class RemoveFromCartView(View):
             if cart_item.cart.session_key == session_key:
                 cart_item.delete()
         return redirect("cart_detail")
-
-
-class LoginView(View):
-    def post(self, request):
-        username = request.POST["username"]
-        password = request.POST["password"]
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            session_key = request.session.session_key
-            login(request, user)
-            if session_key:
-                try:
-                    session_cart = Cart.objects.get(session_key=session_key)
-                    user_cart, created = Cart.objects.get_or_create(user=user)
-                    user_cart.merge_with(session_cart)
-                except Cart.DoesNotExist:
-                    pass
-            return redirect("cart_detail")
-        else:
-            return redirect("login")
