@@ -59,10 +59,14 @@ class ProductViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(popular_products, many=True)
         return Response(serializer.data)
 
-    @action(detail=True, methods=["post"], url_path="upload-images")
-    def upload_images(self, request, pk=None):
-        product = self.get_object()
-        uploaded_images = request.FILES.getlist("uploaded_images")
+    @action(detail=False, methods=["get"])
+    def latest_arrival(self, request):
+        """
+        Retrieve latest arrival products.
+        """
+        latest_arrival_products = Product.objects.order_by("-pk")[:30]
+        serializer = self.get_serializer(latest_arrival_products, many=True)
+        return Response(serializer.data)
 
         for image in uploaded_images:
             ProductImage.objects.create(product=product, image=image)
