@@ -27,7 +27,19 @@ class CategoryViewSet(viewsets.ModelViewSet):
                 required=False,
                 type=str,
             ),
-        ]
+            OpenApiParameter(
+                name="name",
+                description="Search by product name",
+                required=False,
+                type=str,
+            ),
+            OpenApiParameter(
+                name="ordering",
+                description="Sort by fields: 'views' (popular product ), 'price'. Use '-' for short order.",
+                required=False,
+                type=str,
+            ),
+        ],
     )
 )
 class ProductViewSet(viewsets.ModelViewSet):
