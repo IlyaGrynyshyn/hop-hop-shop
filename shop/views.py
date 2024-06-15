@@ -1,8 +1,8 @@
 from rest_framework.filters import OrderingFilter
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from shop.models import Category, Product, ProductImage
+from shop.models import Category, Product
 from shop.serializers import (
     CategorySerializer,
     ProductSerializer,
@@ -64,9 +64,6 @@ class ProductViewSet(viewsets.ModelViewSet):
     def popular(self, request):
         """
         Retrieve the top 30 most viewed products.
-
-        Returns:
-            Response: Serialized data of the top 30 most viewed products.
         """
         popular_products = Product.objects.order_by("-views")[:30]
         serializer = self.get_serializer(popular_products, many=True)
@@ -79,10 +76,4 @@ class ProductViewSet(viewsets.ModelViewSet):
         """
         latest_arrival_products = Product.objects.order_by("-pk")[:30]
         serializer = self.get_serializer(latest_arrival_products, many=True)
-        return Response(serializer.data)
-
-        for image in uploaded_images:
-            ProductImage.objects.create(product=product, image=image)
-
-        serializer = ProductSerializer(product)
         return Response(serializer.data, status=status.HTTP_200_OK)
