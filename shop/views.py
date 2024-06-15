@@ -1,4 +1,5 @@
-from rest_framework import viewsets, status
+from rest_framework.filters import OrderingFilter
+from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from shop.models import Category, Product, ProductImage
@@ -31,9 +32,9 @@ class CategoryViewSet(viewsets.ModelViewSet):
 )
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
-    serializer_class = ProductSerializer
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_class = ProductFilter
+    ordering_fields = ["views", "price"]
 
     def get_serializer_class(self):
         if self.action == "retrieve":
