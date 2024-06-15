@@ -70,9 +70,11 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class ProductDetailSerializer(serializers.ModelSerializer):
-    attributes = ProductAttributesSerializer(read_only=True)
+    attributes = ProductAttributesSerializer(
+        read_only=True, source="product_attributes"
+    )
     category = CategorySerializer(read_only=True)
-    product_image = ProductImageSerializer(many=True, read_only=True)
+    images = ProductImageSerializer(many=True, read_only=True, source="product_images")
 
     class Meta:
         model = Product
@@ -85,5 +87,5 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             "description",
             "category",
             "attributes",
-            "product_image",
+            "images",
         ]
