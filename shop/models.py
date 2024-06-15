@@ -82,7 +82,9 @@ class ProductAttributes(models.Model):
     material = models.CharField(max_length=100)
     style = models.CharField(max_length=100)
     size = models.IntegerField()
-    product = models.OneToOneField(Product, on_delete=models.CASCADE)
+    product = models.OneToOneField(
+        Product, on_delete=models.CASCADE, related_name="product_attributes"
+    )
 
     def __str__(self):
         return f"Attributes for {self.product.name}"
