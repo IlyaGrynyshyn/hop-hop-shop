@@ -17,4 +17,5 @@ urlpatterns = [
     path("api/email-subscription", include("email_subscription.urls")),
     path("api/shop/", include("shop.urls")),
     path("api/auth/", include("authentication.urls")),
+    path("api/cart/", include("cart.urls")),
 ]

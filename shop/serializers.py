@@ -49,6 +49,20 @@ class ProductSerializer(serializers.ModelSerializer):
 
         return product
 
+    def update(self, instance, validated_data):
+        product_attributes_data = validated_data.pop("product_attributes", None)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        if product_attributes_data:
+            ProductAttributes.objects.update_or_create(
+                product=instance, defaults=product_attributes_data
+            )
+
+        return instance
+
     def validate_price(self, value):
         if value <= 0:
             raise serializers.ValidationError("Price must be greater than 0.")
@@ -56,9 +70,11 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class ProductDetailSerializer(serializers.ModelSerializer):
-    attributes = ProductAttributesSerializer(read_only=True)
+    attributes = ProductAttributesSerializer(
+        read_only=True, source="product_attributes"
+    )
     category = CategorySerializer(read_only=True)
-    product_image = ProductImageSerializer(many=True, read_only=True)
+    images = ProductImageSerializer(many=True, read_only=True, source="product_images")
 
     class Meta:
         model = Product
@@ -71,5 +87,5 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             "description",
             "category",
             "attributes",
-            "product_image",
+            "images",
         ]

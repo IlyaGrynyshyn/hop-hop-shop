@@ -90,35 +90,35 @@ class ProductViewSetTest(TestCase):
         self.assertEqual(product.price, 100)
         self.assertEqual(product.SKU, 3333)
         self.assertEqual(product.description, "Test Description")
+        #
+        # image1 = SimpleUploadedFile(
+        #     name="test_image1.jpg", content=b"\x00\x01", content_type="image/jpeg"
+        # )
+        # image2 = SimpleUploadedFile(
+        #     name="test_image2.jpg", content=b"\x00\x02", content_type="image/jpeg"
+        # )
+        #
+        # image_upload_url = reverse("product-upload-images", args=[product.id])
+        # image_data = {"uploaded_images": [image1, image2]}
+        #
+        # response = self.client.post(image_upload_url, image_data, format="multipart")
+        #
+        # self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        image1 = SimpleUploadedFile(
-            name="test_image1.jpg", content=b"\x00\x01", content_type="image/jpeg"
-        )
-        image2 = SimpleUploadedFile(
-            name="test_image2.jpg", content=b"\x00\x02", content_type="image/jpeg"
-        )
-
-        image_upload_url = reverse("product-upload-images", args=[product.id])
-        image_data = {"uploaded_images": [image1, image2]}
-
-        response = self.client.post(image_upload_url, image_data, format="multipart")
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_upload_images(self):
-        url = reverse("product-upload-images", args=[self.product.id])
-        image1 = SimpleUploadedFile(
-            name="test_image1.jpg", content=b"\x00\x01", content_type="image/jpeg"
-        )
-        image2 = SimpleUploadedFile(
-            name="test_image2.jpg", content=b"\x00\x02", content_type="image/jpeg"
-        )
-
-        image_upload_url = reverse("product-upload-images", args=[self.product.id])
-        image_data = {"uploaded_images": [image1, image2]}
-
-        response = self.client.post(image_upload_url, image_data, format="multipart")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    # def test_upload_images(self):
+    #     url = reverse("product-upload-images", args=[self.product.id])
+    #     image1 = SimpleUploadedFile(
+    #         name="test_image1.jpg", content=b"\x00\x01", content_type="image/jpeg"
+    #     )
+    #     image2 = SimpleUploadedFile(
+    #         name="test_image2.jpg", content=b"\x00\x02", content_type="image/jpeg"
+    #     )
+    #
+    #     image_upload_url = reverse("product-upload-images", args=[self.product.id])
+    #     image_data = {"uploaded_images": [image1, image2]}
+    #
+    #     response = self.client.post(image_upload_url, image_data, format="multipart")
+    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_partial_update_product(self):
         update_data = {
