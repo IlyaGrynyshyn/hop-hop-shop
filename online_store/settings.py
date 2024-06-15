@@ -1,5 +1,7 @@
 import os
 from pathlib import Path
+
+from django.urls import reverse_lazy
 from dotenv import load_dotenv
 
 from utils.settings_utils import add_prefix_to_allowed_hosts
@@ -49,6 +51,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
+    "authentication.middleware.BruteForceProtectionMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -182,3 +185,8 @@ REST_FRAMEWORK = {
 DRF_STANDARDIZED_ERRORS = {
     "EXCEPTION_FORMATTER_CLASS": "utils.standardized_errors.MyExceptionFormatter"
 }
+
+LOGIN_URL = reverse_lazy("authentication:token_obtain_pair")
+
+BRUTE_FORCE_THRESHOLD = 3  # Allow only 3 failed login attempts
+BRUTE_FORCE_TIMEOUT = 300  # Lock the user out for 5 minutes (300 seconds)
