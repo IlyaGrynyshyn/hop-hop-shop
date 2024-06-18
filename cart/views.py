@@ -6,7 +6,6 @@ from rest_framework.views import APIView
 from cart.models import Cart, CartItem
 from cart.serializers import CartSerializer, CartItemSerializer
 from shop.models import Product
-from django.contrib.auth import authenticate, login
 
 
 class CartView(generics.RetrieveAPIView):
@@ -16,10 +15,9 @@ class CartView(generics.RetrieveAPIView):
         if self.request.user.is_authenticated:
             cart, created = Cart.objects.get_or_create(user=self.request.user)
         else:
-            session_key = self.request.session.session_key
-            if not session_key:
+            if not self.request.session.session_key:
                 self.request.session.create()
-                session_key = self.request.session.session_key
+            session_key = self.request.session.session_key
             cart, created = Cart.objects.get_or_create(session_key=session_key)
         return cart
 
@@ -29,14 +27,12 @@ class AddToCartView(APIView):
         if request.user.is_authenticated:
             cart, created = Cart.objects.get_or_create(user=request.user)
         else:
-            session_key = request.session.session_key
-            if not session_key:
+            if not request.session.session_key:
                 request.session.create()
-                session_key = request.session.session_key
+            session_key = request.session.session_key
             cart, created = Cart.objects.get_or_create(session_key=session_key)
 
         product = get_object_or_404(Product, id=product_id)
-
         cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
         if not created:
             cart_item.quantity += 1
@@ -51,10 +47,9 @@ class UpdateCartView(generics.UpdateAPIView):
         if self.request.user.is_authenticated:
             cart = get_object_or_404(Cart, user=self.request.user)
         else:
-            session_key = self.request.session.session_key
-            if not session_key:
+            if not self.request.session.session_key:
                 self.request.session.create()
-                session_key = self.request.session.session_key
+            session_key = self.request.session.session_key
             cart = get_object_or_404(Cart, session_key=session_key)
         return get_object_or_404(CartItem, cart=cart, id=self.kwargs["item_id"])
 
@@ -75,6 +70,9 @@ class RemoveFromCartView(View):
                 cart_item.delete()
         else:
             session_key = request.session.session_key
+            if not session_key:
+                request.session.create()
+                session_key = request.session.session_key
             if cart_item.cart.session_key == session_key:
                 cart_item.delete()
         return redirect("cart_detail")
