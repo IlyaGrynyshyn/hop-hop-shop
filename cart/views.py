@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from cart.models import Cart, CartItem
 from cart.serializers import CartSerializer, CartItemSerializer
 from shop.models import Product
+import json
 
 
 class CartView(generics.RetrieveAPIView):
@@ -14,6 +15,10 @@ class CartView(generics.RetrieveAPIView):
     def get_object(self):
         if self.request.user.is_authenticated:
             cart, created = Cart.objects.get_or_create(user=self.request.user)
+            if cart.old_cart:
+                cart.merge_with(cart.old_cart)
+                cart.old_cart = None
+                cart.save()
         else:
             if not self.request.session.session_key:
                 self.request.session.create()
