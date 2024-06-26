@@ -21,8 +21,8 @@ class ProductAttributesSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    images = ProductImageSerializer(many=True, read_only=True, source="product_images")
-    product_attributes = ProductAttributesSerializer(required=False)
+    images = serializers.SerializerMethodField()
+    category = CategorySerializer(read_only=True)
 
     class Meta:
         model = Product
@@ -33,12 +33,13 @@ class ProductSerializer(serializers.ModelSerializer):
             "slug",
             "price",
             "SKU",
-            "description",
-            "views",
             "images",
-            "product_attributes",
         ]
-        read_only_fields = ["slug", "views"]
+        read_only_fields = ["slug"]
+
+    def get_images(self, obj):
+        first_image = obj.product_images.first()
+        return ProductImageSerializer(first_image).data if first_image else None
 
     def create(self, validated_data):
         product_attributes_data = validated_data.pop("product_attributes", None)
