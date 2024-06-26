@@ -13,10 +13,8 @@ class CartTransferMiddleware:
             session_key = request.session.session_key
             print(session_key)
             if session_key:
-                # Отримуємо кошик сесії
                 session_cart = Cart.objects.filter(session_key=session_key).first()
                 if session_cart:
-                    # Отримуємо або створюємо кошик користувача
                     user_cart, created = Cart.objects.get_or_create(user=request.user)
                     for item in session_cart.items.all():
                         print(item)
