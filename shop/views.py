@@ -13,6 +13,7 @@ from shop.filters import ProductFilter
 from drf_spectacular.utils import extend_schema, OpenApiParameter, extend_schema_view
 
 
+@extend_schema(tags=["categories"])
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
@@ -40,8 +41,9 @@ class CategoryViewSet(viewsets.ModelViewSet):
                 type=str,
             ),
         ],
-    )
+    ),
 )
+@extend_schema(tags=["products"])
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     filter_backends = [DjangoFilterBackend, OrderingFilter]

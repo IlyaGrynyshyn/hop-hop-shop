@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 from shop.models import Product
-import json
 
 
 class Cart(models.Model):
@@ -9,33 +8,8 @@ class Cart(models.Model):
         get_user_model(), on_delete=models.CASCADE, null=True, blank=True
     )
     session_key = models.CharField(max_length=40, null=True, blank=True)
-    old_cart = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    def merge_with(self, other_cart):
-        if isinstance(other_cart, str):
-            items = json.loads(other_cart)
-            for product_id, quantity in items.items():
-                product = Product.objects.get(id=product_id)
-                existing_item = self.items.filter(product=product).first()
-                if existing_item:
-                    existing_item.quantity += quantity
-                    existing_item.save()
-                else:
-                    CartItem.objects.create(
-                        cart=self, product=product, quantity=quantity
-                    )
-        else:
-            for item in other_cart.items.all():
-                existing_item = self.items.filter(product=item.product).first()
-                if existing_item:
-                    existing_item.quantity += item.quantity
-                    existing_item.save()
-                else:
-                    item.cart = self
-                    item.save()
-            other_cart.delete()
 
     def __str__(self):
         if self.user:

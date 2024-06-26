@@ -1,83 +1,98 @@
-from django.shortcuts import get_object_or_404, redirect
-from django.views.generic import View
-from rest_framework import generics
+from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
 from cart.models import Cart, CartItem
-from cart.serializers import CartSerializer, CartItemSerializer
+from cart.serializers import CartSerializer, ProductItemSerializer
 from shop.models import Product
-import json
+from cart.services import CartService
 
 
-class CartView(generics.RetrieveAPIView):
-    serializer_class = CartSerializer
+class CartDetailView(APIView):
 
-    def get_object(self):
-        if self.request.user.is_authenticated:
+    def get(self, request):
+        if request.user.is_authenticated:
             cart, created = Cart.objects.get_or_create(user=self.request.user)
-            if cart.old_cart:
-                cart.merge_with(cart.old_cart)
-                cart.old_cart = None
-                cart.save()
+            serializer_class = CartSerializer(cart)
+            total_items = cart.item_count()
+            total_price = cart.total_price()
+            return Response(
+                {
+                    "products": serializer_class.data,
+                    "total_price": total_price,
+                    "total_items": total_items,
+                },
+                status=status.HTTP_200_OK,
+            )
         else:
-            if not self.request.session.session_key:
-                self.request.session.create()
-            session_key = self.request.session.session_key
-            cart, created = Cart.objects.get_or_create(session_key=session_key)
-        return cart
+            cart = CartService(request)
+            cart_items = list(cart)
+
+            serialized_cart_items = []
+            for item in cart_items:
+                product_data = ProductItemSerializer(item["product"]).data
+                item_data = {
+                    "product": product_data,
+                    "quantity": item["quantity"],
+                    "price": item["price"],
+                    "total_price": item["total_price"],
+                }
+                serialized_cart_items.append(item_data)
+
+            total_price = cart.get_total_price()
+            total_items = cart.get_total_item()
+
+            return Response(
+                {
+                    "products": serialized_cart_items,
+                    "total_price": total_price,
+                    "total_items": total_items,
+                },
+                status=status.HTTP_200_OK,
+            )
 
 
-class AddToCartView(APIView):
+class CartAddView(APIView):
+
     def post(self, request, product_id):
+        try:
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
+            return Response(
+                {"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
         if request.user.is_authenticated:
+            # TODO: implement save cart item in DB if user is authenticated
             cart, created = Cart.objects.get_or_create(user=request.user)
+            cart_item, created = CartItem.objects.get_or_create(
+                cart=cart, product=product
+            )
         else:
-            if not request.session.session_key:
-                request.session.create()
-            session_key = request.session.session_key
-            cart, created = Cart.objects.get_or_create(session_key=session_key)
-
-        product = get_object_or_404(Product, id=product_id)
-        cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
-        if not created:
-            cart_item.quantity += 1
-        cart_item.save()
-        return redirect("cart_detail")
+            cart = CartService(request)
+            cart.add(
+                product=product,
+                quantity=request.data.get("quantity", 1),
+                update_quantity=request.data.get("update_quantity", False),
+            )
+        return Response({"message": "Product added to cart"}, status=status.HTTP_200_OK)
 
 
-class UpdateCartView(generics.UpdateAPIView):
-    serializer_class = CartItemSerializer
+class CartRemoveView(APIView):
 
-    def get_object(self):
-        if self.request.user.is_authenticated:
-            cart = get_object_or_404(Cart, user=self.request.user)
-        else:
-            if not self.request.session.session_key:
-                self.request.session.create()
-            session_key = self.request.session.session_key
-            cart = get_object_or_404(Cart, session_key=session_key)
-        return get_object_or_404(CartItem, cart=cart, id=self.kwargs["item_id"])
-
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop("partial", False)
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        return Response(serializer.data)
-
-
-class RemoveFromCartView(View):
-    def post(self, request, item_id):
-        cart_item = get_object_or_404(CartItem, id=item_id)
+    def delete(self, request, product_id):
+        try:
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
+            return Response(
+                {"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND
+            )
         if request.user.is_authenticated:
-            if cart_item.cart.user == request.user:
-                cart_item.delete()
+            # TODO: implement delete item from cart if user is authenticated
+            ...
         else:
-            session_key = request.session.session_key
-            if not session_key:
-                request.session.create()
-                session_key = request.session.session_key
-            if cart_item.cart.session_key == session_key:
-                cart_item.delete()
-        return redirect("cart_detail")
+            cart = CartService(request)
+            cart.remove(product)
+            return Response(
+                {"message": "Product removed from cart"}, status=status.HTTP_200_OK
+            )

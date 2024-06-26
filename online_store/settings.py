@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework_simplejwt",
     "rest_framework",
+    "debug_toolbar",
     "drf_standardized_errors",
     "django_filters",
     "corsheaders",
@@ -60,6 +61,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    "cart.middleware.CartTransferMiddleware",
 ]
 
 ROOT_URLCONF = "online_store.urls"
@@ -191,3 +194,9 @@ LOGIN_URL = reverse_lazy("authentication:token_obtain_pair")
 
 BRUTE_FORCE_THRESHOLD = 3  # Allow only 3 failed login attempts
 BRUTE_FORCE_TIMEOUT = 300  # Lock the user out for 5 minutes (300 seconds)
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
+
+CART_SESSION_ID = "cart"
