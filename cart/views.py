@@ -9,6 +9,7 @@ from cart.services import CartService
 
 
 class CartDetailView(APIView):
+    serializer_class = CartSerializer
 
     def get(self, request):
         if request.user.is_authenticated:
@@ -53,6 +54,7 @@ class CartDetailView(APIView):
 
 
 class CartAddView(APIView):
+    serializer_class = CartSerializer
 
     def post(self, request, product_id):
         try:
@@ -79,6 +81,7 @@ class CartAddView(APIView):
 
 
 class CartRemoveView(APIView):
+    serializer_class = CartSerializer
 
     def delete(self, request, product_id):
         try:
