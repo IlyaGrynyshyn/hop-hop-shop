@@ -1,6 +1,24 @@
+from decimal import Decimal
+
 from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from shop.models import Product
+
+
+class Coupon(models.Model):
+    code = models.CharField(max_length=50, unique=True)
+    discount = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(100)],
+        help_text="Percentage value (1 to 100)",
+    )
+
+    active = models.BooleanField(default=True)
+    valid_from = models.DateTimeField(auto_now_add=True)
+    valid_to = models.DateTimeField()
+
+    def __str__(self):
+        return f"{self.code} - {self.discount}%"
 
 
 class Cart(models.Model):
@@ -10,6 +28,7 @@ class Cart(models.Model):
     session_key = models.CharField(max_length=40, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    coupon = models.ForeignKey(Coupon, null=True, blank=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         if self.user:
@@ -17,7 +36,10 @@ class Cart(models.Model):
         return f"Cart with session {self.session_key}"
 
     def total_price(self):
-        return sum(item.product.price * item.quantity for item in self.items.all())
+        total = sum(item.product.price * item.quantity for item in self.items.all())
+        if self.coupon:
+            total -= (self.coupon.discount / Decimal(100)) * total
+        return total
 
     def item_count(self):
         return sum(item.quantity for item in self.items.all())
