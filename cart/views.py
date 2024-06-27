@@ -1,9 +1,10 @@
-from rest_framework import status, generics
+from drf_spectacular.utils import extend_schema
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from cart.models import Cart, CartItem
-from cart.serializers import CartSerializer, ProductItemSerializer
+from cart.models import Cart, CartItem, Coupon
+from cart.serializers import CartSerializer, ProductItemSerializer, CouponSerializer
 from shop.models import Product
 from cart.services import CartService
 
@@ -111,3 +112,38 @@ class CartSubtractItemView(APIView):
         return Response(
             {"message": "Product removed from cart"}, status=status.HTTP_200_OK
         )
+
+
+@extend_schema(tags=["coupon"], summary="Apply coupon")
+class CouponVIewView(APIView):
+    serializer_class = CouponSerializer
+
+    def post(self, request):
+        code = request.data.get("code")
+        try:
+            coupon = Coupon.objects.get(code=code, active=True)
+        except Coupon.DoesNotExist:
+            return Response(
+                {"error": "Invalid or inactive coupon"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if request.user.is_authenticated:
+            cart, created = Cart.objects.get_or_create(user=request.user)
+            cart.coupon = coupon
+            cart.save()
+        else:
+            cart = CartService(request)
+            cart.add_coupon(coupon)
+        return Response({"message": "Coupon applied"}, status=status.HTTP_200_OK)
+
+
+@extend_schema(tags=["coupon"], summary="Cancel applied coupon")
+class RemoveCoupon(APIView):
+    def post(self, request):
+        if request.user.is_authenticated:
+            cart, created = Cart.objects.get_or_create(user=request.user)
+            cart.coupon.delete()
+        else:
+            cart = CartService(request)
+            cart.remove_coupon()
+        return Response({"message": "Coupon removed"}, status=status.HTTP_200_OK)
