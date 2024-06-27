@@ -1,5 +1,6 @@
 from decimal import Decimal
 from django.conf import settings
+
 from shop.models import Product
 
 
@@ -22,6 +23,15 @@ class CartService:
             self.cart[product_id]["quantity"] = quantity
         else:
             self.cart[product_id]["quantity"] += quantity
+        self.save()
+
+    def subtraction_quantity(self, product):
+        product_id = str(product.id)
+        if product_id in self.cart:
+            if self.cart[product_id]["quantity"] == 1:
+                del self.cart[product_id]
+            else:
+                self.cart[product_id]["quantity"] -= 1
         self.save()
 
     # Mark the session as modified to ensure it is saved
