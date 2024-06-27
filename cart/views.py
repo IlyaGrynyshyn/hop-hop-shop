@@ -9,7 +9,6 @@ from cart.services import CartService
 
 
 class CartDetailView(APIView):
-    serializer_class = CartSerializer
 
     def get(self, request):
         if request.user.is_authenticated:
@@ -53,8 +52,7 @@ class CartDetailView(APIView):
             )
 
 
-class CartAddView(APIView):
-    serializer_class = CartSerializer
+class CartAddItemView(APIView):
 
     def post(self, request, product_id):
         try:
@@ -80,8 +78,7 @@ class CartAddView(APIView):
         return Response({"message": "Product added to cart"}, status=status.HTTP_200_OK)
 
 
-class CartRemoveView(APIView):
-    serializer_class = CartSerializer
+class CartRemoveItemView(APIView):
 
     def delete(self, request, product_id):
         try:
@@ -99,3 +96,18 @@ class CartRemoveView(APIView):
             return Response(
                 {"message": "Product removed from cart"}, status=status.HTTP_200_OK
             )
+
+
+class CartSubtractItemView(APIView):
+    def post(self, request, product_id):
+        cart = CartService(request)
+        try:
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
+            return Response(
+                {"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        cart.subtraction_quantity(product)
+        return Response(
+            {"message": "Product removed from cart"}, status=status.HTTP_200_OK
+        )
