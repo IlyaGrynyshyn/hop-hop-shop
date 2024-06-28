@@ -21,11 +21,13 @@ class CartDetailView(APIView):
             serializer_class = CartSerializer(cart)
             total_items = cart.item_count()
             total_price = cart.total_price()
+            coupon_is_used = cart.coupon is not None
             return Response(
                 {
                     "products": serializer_class.data,
                     "total_price": total_price,
                     "total_items": total_items,
+                    "coupon_is_used": coupon_is_used,
                 },
                 status=status.HTTP_200_OK,
             )
@@ -52,6 +54,7 @@ class CartDetailView(APIView):
                     "products": serialized_cart_items,
                     "total_price": total_price,
                     "total_items": total_items,
+                    "coupon_is_used": cart.coupon_is_used(),
                 },
                 status=status.HTTP_200_OK,
             )

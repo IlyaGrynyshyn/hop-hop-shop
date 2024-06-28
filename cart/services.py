@@ -87,6 +87,9 @@ class CartService:
         self.session["coupon_id"] = {}
         self.save()
 
+    def coupon_is_used(self):
+        return bool(self.session.get("coupon_id"))
+
     # Get the total price of all items in the cart
     def get_total_price(self):
         total = sum(
