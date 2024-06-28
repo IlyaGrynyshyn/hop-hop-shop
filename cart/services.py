@@ -1,5 +1,7 @@
 from decimal import Decimal
 from django.conf import settings
+
+from cart.models import Coupon
 from shop.models import Product
 
 
@@ -10,6 +12,7 @@ class CartService:
         if not cart:
             cart = self.session[settings.CART_SESSION_ID] = {}
         self.cart = cart
+        self.coupon_id = self.session.get("coupon_id")
 
     # Add a product to the cart or update its quantity
     def add(self, product, quantity=1, update_quantity=False):
@@ -22,6 +25,15 @@ class CartService:
             self.cart[product_id]["quantity"] = quantity
         else:
             self.cart[product_id]["quantity"] += quantity
+        self.save()
+
+    def subtraction_quantity(self, product):
+        product_id = str(product.id)
+        if product_id in self.cart:
+            if self.cart[product_id]["quantity"] == 1:
+                del self.cart[product_id]
+            else:
+                self.cart[product_id]["quantity"] -= 1
         self.save()
 
     # Mark the session as modified to ensure it is saved
@@ -50,12 +62,6 @@ class CartService:
     def __len__(self):
         return sum(item["quantity"] for item in self.cart.values())
 
-    # Get the total price of all items in the cart
-    def get_total_price(self):
-        return sum(
-            Decimal(item["price"]) * item["quantity"] for item in self.cart.values()
-        )
-
     # Get the total number of items in the cart
     def get_total_item(self):
         return sum(item["quantity"] for item in self.cart.values())
@@ -64,3 +70,29 @@ class CartService:
     def clear(self):
         del self.session[settings.CART_SESSION_ID]
         self.save()
+
+    def add_coupon(self, coupon):
+        self.session["coupon_id"] = coupon.id
+        self.save()
+
+    def get_coupon(self):
+        if self.coupon_id:
+            try:
+                return Coupon.objects.get(id=self.coupon_id)
+            except Coupon.DoesNotExist:
+                pass
+        return None
+
+    def remove_coupon(self):
+        self.session["coupon_id"] = {}
+        self.save()
+
+    # Get the total price of all items in the cart
+    def get_total_price(self):
+        total = sum(
+            Decimal(item["price"]) * item["quantity"] for item in self.cart.values()
+        )
+        coupon = self.get_coupon()
+        if coupon:
+            total -= (coupon.discount / Decimal(100)) * total
+        return total

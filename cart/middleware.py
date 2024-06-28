@@ -1,5 +1,4 @@
-from django.utils.deprecation import MiddlewareMixin
-from .models import Cart, CartItem
+from cart.models import Cart, CartItem
 
 
 class CartTransferMiddleware:
@@ -9,9 +8,7 @@ class CartTransferMiddleware:
     def __call__(self, request):
         response = self.get_response(request)
         if request.user.is_authenticated:
-            print("User is logged in")
             session_key = request.session.session_key
-            print(session_key)
             if session_key:
                 session_cart = Cart.objects.filter(session_key=session_key).first()
                 if session_cart:
