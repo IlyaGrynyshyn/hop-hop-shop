@@ -9,7 +9,11 @@ from shop.models import Product
 from cart.services import CartService
 
 
+@extend_schema(summary="Retrieve cart details")
 class CartDetailView(APIView):
+    """
+    Retrieve the details of the cart.
+    """
 
     def get(self, request):
         if request.user.is_authenticated:
@@ -53,7 +57,11 @@ class CartDetailView(APIView):
             )
 
 
+@extend_schema(summary="Add item to cart")
 class CartAddItemView(APIView):
+    """
+    Add an item to the cart.
+    """
 
     def post(self, request, product_id):
         try:
@@ -79,7 +87,11 @@ class CartAddItemView(APIView):
         return Response({"message": "Product added to cart"}, status=status.HTTP_200_OK)
 
 
+@extend_schema(summary="Remove item from cart")
 class CartRemoveItemView(APIView):
+    """
+    Remove an item from the cart.
+    """
 
     def delete(self, request, product_id):
         try:
@@ -99,7 +111,12 @@ class CartRemoveItemView(APIView):
             )
 
 
+@extend_schema(summary="Subtract item quantity in cart")
 class CartSubtractItemView(APIView):
+    """
+    Subtract the quantity of an item in the cart.
+    """
+
     def post(self, request, product_id):
         cart = CartService(request)
         try:
@@ -116,6 +133,10 @@ class CartSubtractItemView(APIView):
 
 @extend_schema(tags=["coupon"], summary="Apply coupon")
 class CouponVIewView(APIView):
+    """
+    Apply a coupon to the cart.
+    """
+
     serializer_class = CouponSerializer
 
     def post(self, request):
@@ -139,6 +160,10 @@ class CouponVIewView(APIView):
 
 @extend_schema(tags=["coupon"], summary="Cancel applied coupon")
 class RemoveCoupon(APIView):
+    """
+    Remove an applied coupon from the cart.
+    """
+
     def post(self, request):
         if request.user.is_authenticated:
             cart, created = Cart.objects.get_or_create(user=request.user)
