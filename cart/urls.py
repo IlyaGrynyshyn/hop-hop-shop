@@ -4,8 +4,8 @@ from cart.views import (
     CartRemoveItemView,
     CartDetailView,
     CartSubtractItemView,
-    CouponVIewView,
-    RemoveCoupon,
+    UseCouponView,
+    RemoveCouponView,
 )
 
 app_name = "cart"
@@ -23,6 +23,6 @@ urlpatterns = [
         CartSubtractItemView.as_view(),
         name="cart_subtract",
     ),
-    path("coupon/", CouponVIewView.as_view(), name="coupon"),
-    path("coupon/remove/", RemoveCoupon.as_view(), name="coupon_remove"),
+    path("coupon/", UseCouponView.as_view(), name="coupon"),
+    path("coupon/remove/", RemoveCouponView.as_view(), name="coupon_remove"),
 ]
