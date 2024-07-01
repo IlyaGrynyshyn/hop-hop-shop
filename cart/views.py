@@ -17,8 +17,9 @@ def cart_session_response(cart_service):
 
     return {
         "products": cart_items,
-        "total_price": total_price,
         "total_items": total_items,
+        "subtotal_price": total_price,
+        "total_price": total_price,
         "coupon_is_used": coupon_is_used,
     }
 
