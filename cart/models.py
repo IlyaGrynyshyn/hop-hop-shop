@@ -35,14 +35,17 @@ class Cart(models.Model):
             return f"Cart of {self.user.email}"
         return f"Cart with session {self.session_key}"
 
-    def total_price(self):
+    def get_total_price(self):
         total = sum(item.product.price * item.quantity for item in self.items.all())
         if self.coupon:
             total -= (self.coupon.discount / Decimal(100)) * total
         return total
 
-    def item_count(self):
+    def get_total_item(self):
         return sum(item.quantity for item in self.items.all())
+
+    def coupon_is_used(self):
+        return bool(self.coupon)
 
 
 class CartItem(models.Model):
