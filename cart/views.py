@@ -4,9 +4,23 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from cart.models import Cart, CartItem, Coupon
-from cart.serializers import CartSerializer, ProductItemSerializer, CouponSerializer
+from cart.serializers import CartSerializer, CouponSerializer
 from shop.models import Product
-from cart.services import CartService
+from cart.services import CartSessionService, CartDBService
+
+
+def cart_session_response(cart_service):
+    cart_items = cart_service
+    total_price = cart_service.get_total_price()
+    total_items = cart_service.get_total_item()
+    coupon_is_used = cart_service.coupon_is_used()
+
+    return {
+        "products": cart_items,
+        "total_price": total_price,
+        "total_items": total_items,
+        "coupon_is_used": coupon_is_used,
+    }
 
 
 @extend_schema(summary="Retrieve cart details")
@@ -17,47 +31,13 @@ class CartDetailView(APIView):
 
     def get(self, request):
         if request.user.is_authenticated:
-            cart, created = Cart.objects.get_or_create(user=self.request.user)
-            serializer_class = CartSerializer(cart)
-            total_items = cart.item_count()
-            total_price = cart.total_price()
-            coupon_is_used = cart.coupon is not None
-            return Response(
-                {
-                    "products": serializer_class.data,
-                    "total_price": total_price,
-                    "total_items": total_items,
-                    "coupon_is_used": coupon_is_used,
-                },
-                status=status.HTTP_200_OK,
-            )
+            cart = CartDBService(request.user)
+            response_data = cart_session_response(cart)
         else:
-            cart = CartService(request)
-            cart_items = list(cart)
+            cart_service = CartSessionService(request)
+            response_data = cart_session_response(cart_service)
 
-            serialized_cart_items = []
-            for item in cart_items:
-                product_data = ProductItemSerializer(item["product"]).data
-                item_data = {
-                    "product": product_data,
-                    "quantity": item["quantity"],
-                    "price": item["price"],
-                    "total_price": item["total_price"],
-                }
-                serialized_cart_items.append(item_data)
-
-            total_price = cart.get_total_price()
-            total_items = cart.get_total_item()
-
-            return Response(
-                {
-                    "products": serialized_cart_items,
-                    "total_price": total_price,
-                    "total_items": total_items,
-                    "coupon_is_used": cart.coupon_is_used(),
-                },
-                status=status.HTTP_200_OK,
-            )
+        return Response(response_data, status=status.HTTP_200_OK)
 
 
 @extend_schema(summary="Add item to cart")
@@ -75,19 +55,17 @@ class CartAddItemView(APIView):
             )
 
         if request.user.is_authenticated:
-            # TODO: implement save cart item in DB if user is authenticated
-            cart, created = Cart.objects.get_or_create(user=request.user)
-            cart_item, created = CartItem.objects.get_or_create(
-                cart=cart, product=product
-            )
+            cart, _ = Cart.objects.get_or_create(user=request.user)
+            CartItem.objects.get_or_create(cart=cart, product=product)
         else:
-            cart = CartService(request)
-            cart.add(
+            cart_service = CartSessionService(request)
+            cart_service.add(
                 product=product,
                 quantity=request.data.get("quantity", 1),
                 update_quantity=request.data.get("update_quantity", False),
             )
-        return Response({"message": "Product added to cart"}, status=status.HTTP_200_OK)
+            response_data = cart_session_response(cart_service)
+            return Response(response_data, status=status.HTTP_200_OK)
 
 
 @extend_schema(summary="Remove item from cart")
@@ -103,15 +81,15 @@ class CartRemoveItemView(APIView):
             return Response(
                 {"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND
             )
+
         if request.user.is_authenticated:
-            # TODO: implement delete item from cart if user is authenticated
-            ...
+            # Implement removal for authenticated users
+            pass
         else:
-            cart = CartService(request)
-            cart.remove(product)
-            return Response(
-                {"message": "Product removed from cart"}, status=status.HTTP_200_OK
-            )
+            cart_service = CartSessionService(request)
+            cart_service.remove(product)
+            response_data = cart_session_response(cart_service)
+            return Response(response_data, status=status.HTTP_200_OK)
 
 
 @extend_schema(summary="Subtract item quantity in cart")
@@ -121,21 +99,21 @@ class CartSubtractItemView(APIView):
     """
 
     def post(self, request, product_id):
-        cart = CartService(request)
         try:
             product = Product.objects.get(id=product_id)
         except Product.DoesNotExist:
             return Response(
                 {"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND
             )
-        cart.subtraction_quantity(product)
-        return Response(
-            {"message": "Product removed from cart"}, status=status.HTTP_200_OK
-        )
+
+        cart_service = CartSessionService(request)
+        cart_service.subtraction_quantity(product)
+        response_data = cart_session_response(cart_service)
+        return Response(response_data, status=status.HTTP_200_OK)
 
 
 @extend_schema(tags=["coupon"], summary="Apply coupon")
-class CouponVIewView(APIView):
+class UseCouponView(APIView):
     """
     Apply a coupon to the cart.
     """
@@ -151,27 +129,35 @@ class CouponVIewView(APIView):
                 {"error": "Invalid or inactive coupon"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
         if request.user.is_authenticated:
-            cart, created = Cart.objects.get_or_create(user=request.user)
+            cart, _ = Cart.objects.get_or_create(user=request.user)
             cart.coupon = coupon
             cart.save()
         else:
-            cart = CartService(request)
-            cart.add_coupon(coupon)
+            cart_service = CartSessionService(request)
+            cart_service.add_coupon(coupon)
+            response_data = cart_session_response(cart_service)
+            return Response(response_data, status=status.HTTP_200_OK)
+
         return Response({"message": "Coupon applied"}, status=status.HTTP_200_OK)
 
 
 @extend_schema(tags=["coupon"], summary="Cancel applied coupon")
-class RemoveCoupon(APIView):
+class RemoveCouponView(APIView):
     """
     Remove an applied coupon from the cart.
     """
 
     def post(self, request):
         if request.user.is_authenticated:
-            cart, created = Cart.objects.get_or_create(user=request.user)
-            cart.coupon.delete()
+            cart, _ = Cart.objects.get_or_create(user=request.user)
+            cart.coupon = None
+            cart.save()
         else:
-            cart = CartService(request)
-            cart.remove_coupon()
+            cart_service = CartSessionService(request)
+            cart_service.remove_coupon()
+            response_data = cart_session_response(cart_service)
+            return Response(response_data, status=status.HTTP_200_OK)
+
         return Response({"message": "Coupon removed"}, status=status.HTTP_200_OK)
