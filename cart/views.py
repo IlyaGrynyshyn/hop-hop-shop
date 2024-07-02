@@ -56,8 +56,10 @@ class CartAddItemView(APIView):
             )
 
         if request.user.is_authenticated:
-            cart, _ = Cart.objects.get_or_create(user=request.user)
-            CartItem.objects.get_or_create(cart=cart, product=product)
+            cart_service = CartDBService(request.user)
+            cart_service.add(product)
+            response_data = cart_session_response(cart_service)
+            return Response(response_data, status=status.HTTP_200_OK)
         else:
             cart_service = CartSessionService(request)
             cart_service.add(
