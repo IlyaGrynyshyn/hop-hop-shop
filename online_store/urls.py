@@ -19,5 +19,5 @@ urlpatterns = [
     path("api/shop/", include("shop.urls")),
     path("api/auth/", include("authentication.urls")),
     path("api/cart/", include("cart.urls")),
-    path("api/favourite/", include("favourite.urls")),
+    path("api/wishlist/", include("wishlist.urls")),
 ]

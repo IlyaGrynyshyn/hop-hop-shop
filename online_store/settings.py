@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 
 from django.urls import reverse_lazy
@@ -48,7 +49,7 @@ INSTALLED_APPS = [
     "shop",
     "email_subscription",
     "cart",
-    "favourite",
+    "wishlist",
 ]
 
 MIDDLEWARE = [
@@ -201,3 +202,4 @@ INTERNAL_IPS = [
 ]
 
 CART_SESSION_ID = "cart"
+WISHLIST_SESSION_ID = "wishlist"
