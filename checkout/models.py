@@ -18,6 +18,10 @@ class Order(models.Model):
     email = models.EmailField(blank=True, null=True)
     phone = models.CharField(max_length=50)
     paid = models.BooleanField(default=False)
+    shipping_address = models.CharField(max_length=255)
+    shipping_city = models.CharField(max_length=255)
+    shipping_postcode = models.CharField(max_length=20)
+    shipping_country = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.CharField(
