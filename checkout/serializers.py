@@ -1,5 +1,8 @@
 from rest_framework import serializers
+
+from cart.services import CartSessionService
 from checkout.models import Order, OrderItem
+from shop.models import Product
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -9,7 +12,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    items = OrderItemSerializer(many=True)
+    items = OrderItemSerializer(many=True, read_only=True)
 
     class Meta:
         model = Order
@@ -20,9 +23,11 @@ class OrderSerializer(serializers.ModelSerializer):
             "last_name",
             "email",
             "phone",
+            "shipping_country",
+            "shipping_city",
+            "shipping_address",
+            "shipping_postcode",
             "paid",
-            "created_at",
-            "updated_at",
             "status",
             "items",
         ]
@@ -30,8 +35,20 @@ class OrderSerializer(serializers.ModelSerializer):
         read_only_fields = ["customer"]
 
     def create(self, validated_data):
-        items_data = validated_data.pop("items")
+        request = self.context.get("request")
+        cart = CartSessionService(request)
+
+        items_data = [
+            {
+                "product": Product.objects.get(id=item["product"]["id"]),
+                "quantity": item["quantity"],
+                "price": item["price"],
+            }
+            for item in cart
+        ]
+
         order = Order.objects.create(**validated_data)
         for item_data in items_data:
             OrderItem.objects.create(order=order, **item_data)
+        cart.clear()
         return order
