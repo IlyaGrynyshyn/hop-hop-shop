@@ -1,3 +1,6 @@
-from django.urls import path, include
+from django.urls import path
+from checkout.views import CheckoutView
 
-urlpatterns = []
+urlpatterns = [
+    path("checkout/", CheckoutView.as_view(), name="checkout"),
+]
