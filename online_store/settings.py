@@ -27,23 +27,6 @@ ALLOWED_HOSTS.extend(filter(None, os.environ.get("ALLOWED_HOSTS", "").split(",")
 CORS_ALLOWED_ORIGINS = add_prefix_to_allowed_hosts(os.environ.get("ALLOWED_HOSTS", ""))
 CSRF_TRUSTED_ORIGINS = add_prefix_to_allowed_hosts(os.environ.get("ALLOWED_HOSTS", ""))
 
-CORS_ALLOW_METHODS = (
-    "DELETE",
-    "GET",
-    "OPTIONS",
-    "PATCH",
-    "POST",
-    "PUT",
-)
-
-CORS_ALLOW_HEADERS = (
-    "accept",
-    "authorization",
-    "content-type",
-    "user-agent",
-    "x-csrftoken",
-    "x-requested-with",
-)
 
 INSTALLED_APPS = [
     "django.contrib.admin",

@@ -1,4 +1,4 @@
-def add_prefix_to_allowed_hosts(allowed_hosts):
+def add_prefix_to_allowed_hosts(allowed_hosts: str) -> list:
     """
     Adds 'https://' prefix to allowed hosts for CORS and CSRF settings.
 
@@ -16,4 +16,5 @@ def add_prefix_to_allowed_hosts(allowed_hosts):
         if not host.startswith(("http://", "https://")):
             host = f"https://{host}"
         updated_hosts.append(host)
+    updated_hosts.append("http://localhost:3000")
     return updated_hosts
