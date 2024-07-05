@@ -27,6 +27,8 @@ ALLOWED_HOSTS.extend(filter(None, os.environ.get("ALLOWED_HOSTS", "").split(",")
 CORS_ALLOWED_ORIGINS = add_prefix_to_allowed_hosts(os.environ.get("ALLOWED_HOSTS", ""))
 CSRF_TRUSTED_ORIGINS = add_prefix_to_allowed_hosts(os.environ.get("ALLOWED_HOSTS", ""))
 CORS_ALLOW_CREDENTIALS = True
+CSRF_COOKIE_SECURE = True  # Включіть це, якщо використовуєте HTTPS
+CSRF_COOKIE_SAMESITE = "None"  # Для підтримки CORS
 
 
 INSTALLED_APPS = [
