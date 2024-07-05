@@ -52,6 +52,10 @@ INSTALLED_APPS = [
     "wishlist",
 ]
 
+DEBUG_TOOLBAR_CONFIG = {
+    "IS_RUNNING_TESTS": False,
+}
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
