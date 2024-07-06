@@ -1,5 +1,4 @@
 import os
-import sys
 from pathlib import Path
 
 from django.urls import reverse_lazy
@@ -45,7 +44,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework_simplejwt",
     "rest_framework",
-    "debug_toolbar",
     "drf_standardized_errors",
     "django_filters",
     "corsheaders",
@@ -60,9 +58,6 @@ INSTALLED_APPS = [
     "checkout",
 ]
 
-DEBUG_TOOLBAR_CONFIG = {
-    "IS_RUNNING_TESTS": False,
-}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -75,7 +70,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "cart.middleware.CartTransferMiddleware",
 ]
 
