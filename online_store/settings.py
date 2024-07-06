@@ -54,8 +54,10 @@ INSTALLED_APPS = [
     "shop",
     "email_subscription",
     "cart",
+    "wishlist",
     "checkout",
 ]
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -202,3 +204,4 @@ BRUTE_FORCE_THRESHOLD = 3  # Allow only 3 failed login attempts
 BRUTE_FORCE_TIMEOUT = 300  # Lock the user out for 5 minutes (300 seconds)
 
 CART_SESSION_ID = "cart"
+WISHLIST_SESSION_ID = "wishlist"
