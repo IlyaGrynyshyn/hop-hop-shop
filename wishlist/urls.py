@@ -2,10 +2,11 @@ from django.urls import path
 from .views import (
     AddToWishlistView,
     RemoveFromWishlistView,
-    ViewWishlistView,
+    WishlistView,
 )
 
 urlpatterns = [
+    path("", WishlistView.as_view(), name="wishlists"),
     path(
         "add/<int:product_id>/",
         AddToWishlistView.as_view(),
@@ -16,5 +17,4 @@ urlpatterns = [
         RemoveFromWishlistView.as_view(),
         name="remove_from_wishlists",
     ),
-    path("", ViewWishlistView.as_view(), name="view_wishlists"),
 ]

@@ -1,44 +1,56 @@
 from rest_framework import status
+from drf_spectacular.utils import extend_schema
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .services import WishlistService
+from wishlist.services import WishlistService
 from shop.models import Product
-from .serializers import ProductSerializer
+from utils.custom_exception import (
+    ProductAlreadyExistException,
+    ProductNotExistException,
+)
 
 
+@extend_schema(summary="Retrieve wishlist details")
+class WishlistView(APIView):
+    def get(self, request):
+        products = WishlistService(request)
+        return Response({"products": products}, status=status.HTTP_200_OK)
+
+
+@extend_schema(summary="Add item to wishlist")
 class AddToWishlistView(APIView):
     def post(self, request, product_id):
-        service = WishlistService(request)
+        wishlist_service = WishlistService(request)
         try:
-            service.add_product(product_id)
             product = Product.objects.get(id=product_id)
-            return Response(
-                {"product": ProductSerializer(product).data},
-                status=status.HTTP_200_OK,
-            )
         except Product.DoesNotExist:
             return Response(
                 {"error": "Product not found."},
                 status=status.HTTP_404_NOT_FOUND,
             )
-
-
-class RemoveFromWishlistView(APIView):
-    def post(self, request, product_id):
-        service = WishlistService(request)
         try:
-            service.remove_product(product_id)
-            return Response(status=status.HTTP_200_OK)
-        except Product.DoesNotExist:
+            wishlist_service.add(product=product)
+        except ProductAlreadyExistException as error:
             return Response(
-                {"error": "Product not found."},
-                status=status.HTTP_404_NOT_FOUND,
+                {"error": error.message},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
+        return Response(wishlist_service, status=status.HTTP_200_OK)
 
-class ViewWishlistView(APIView):
-    def get(self, request):
-        service = WishlistService(request)
-        products = service.get_products()
-        serialized_products = ProductSerializer(products, many=True).data
-        return Response({"products": serialized_products}, status=status.HTTP_200_OK)
+
+@extend_schema(summary="Remove item from wishlist")
+class RemoveFromWishlistView(APIView):
+    def delete(self, request, product_id):
+        wishlist_service = WishlistService(request)
+        try:
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
+            return Response(
+                {"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        try:
+            wishlist_service.remove(product=product)
+        except ProductNotExistException as error:
+            return Response({"error": error.message}, status=status.HTTP_404_NOT_FOUND)
+        return Response(status=status.HTTP_204_NO_CONTENT)
