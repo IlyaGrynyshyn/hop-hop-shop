@@ -1,45 +1,59 @@
 from django.conf import settings
 from shop.models import Product
 from shop.serializers import ProductSerializer
+from utils.custom_exception import (
+    ProductAlreadyExistException,
+    ProductNotExistException,
+)
 
 
 class WishlistService:
-    def __init__(self, request: object) -> None:
-        # Initialize the wishlist service with the request session
+
+    def __init__(self, request):
         self.session = request.session
-        self.wishlist = self.session.get(settings.WISHLIST_SESSION_ID, [])
-
-    def save(self) -> None:
-        # Save the wishlist to the session
-        self.session[settings.WISHLIST_SESSION_ID] = self.wishlist
-        self.session.modified = True
-
-    def add_product(self, product_id: int) -> None:
-        # Check if the product_id is not already in the wishlist
-        if product_id not in self.wishlist:
-            self.wishlist.append(product_id)
-            self.save()
-        else:
-            print(f"Product with ID {product_id} is already in the wishlist")
-
-    def remove_product(self, product_id: int) -> None:
-        # Remove a product from the wishlist if it's there
-        if product_id in self.wishlist:
-            self.wishlist.remove(product_id)
-            self.save()
-
-    def clear(self) -> None:
-        # Clear the entire wishlist
-        self.wishlist = []
-        self.save()
-
-    def get_products(self) -> list[Product]:
-        # Get a list of products in the wishlist
-        products = Product.objects.filter(id__in=self.wishlist)
-        return products
+        wishlist = self.session.get(settings.WISHLIST_SESSION_ID)
+        if not wishlist:
+            wishlist = self.session[settings.WISHLIST_SESSION_ID] = {}
+        self.wishlist = wishlist
 
     def __iter__(self):
-        # Iterate over the products in the wishlist, serializing each one
-        products = Product.objects.filter(id__in=self.wishlist)
+        product_ids = self.wishlist.keys()
+        products = Product.objects.filter(id__in=product_ids)
         for product in products:
-            yield ProductSerializer(product).data
+            wishlist_item = {
+                "product": ProductSerializer(product).data,
+            }
+            yield wishlist_item
+
+    def save(self) -> None:
+        """
+        Saves the wishlist to the session
+        """
+        self.session.modified = True
+
+    def add(self, product: Product) -> None:
+        """
+        Adds a product to the wishlist
+        """
+        product_id = str(product.id)
+        if product_id in self.wishlist:
+            raise ProductAlreadyExistException
+        self.wishlist[product_id] = {"product": ProductSerializer(product).data}
+        self.save()
+
+    def remove(self, product: Product) -> None:
+        """
+        Removes the product from the wishlist
+        """
+        product_id = str(product.id)
+        if product_id not in self.wishlist:
+            raise ProductNotExistException
+        del self.wishlist[product_id]
+        self.save()
+
+    def clear(self) -> None:
+        """
+        Clears the wishlist
+        """
+        self.wishlist = {}
+        self.save()
