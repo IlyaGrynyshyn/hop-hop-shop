@@ -205,3 +205,5 @@ BRUTE_FORCE_TIMEOUT = 300  # Lock the user out for 5 minutes (300 seconds)
 
 CART_SESSION_ID = "cart"
 WISHLIST_SESSION_ID = "wishlist"
+
+STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY")
