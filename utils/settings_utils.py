@@ -12,10 +12,10 @@ def add_prefix_to_allowed_hosts(allowed_hosts: str) -> list:
         list: A list of hosts with 'https://' prefix.
     """
     updated_hosts = []
+    updated_hosts.append("http://localhost:3000")
     for host in allowed_hosts.split(","):
         if not host.startswith(("http://", "https://")):
             host = f"https://{host}"
         updated_hosts.append(host)
-    updated_hosts.append("http://localhost:3000")
 
     return updated_hosts
