@@ -195,7 +195,16 @@ REST_FRAMEWORK = {
 }
 
 DRF_STANDARDIZED_ERRORS = {
-    "EXCEPTION_FORMATTER_CLASS": "utils.standardized_errors.MyExceptionFormatter"
+    "EXCEPTION_FORMATTER_CLASS": "utils.standardized_errors.MyExceptionFormatter",
+    "EXCEPTION_HANDLER_CLASS": "utils.custom_exceptions.CartExceptionHandler",
+    "EXCEPTION_CLASSES": {
+        "utils.custom_exceptions.StripeCardError": "drf_standardized_errors.exceptions.BaseAPIException",
+        "utils.custom_exceptions.StripeRateLimitError": "drf_standardized_errors.exceptions.BaseAPIException",
+        "utils.custom_exceptions.StripeInvalidRequestError": "drf_standardized_errors.exceptions.BaseAPIException",
+        "utils.custom_exceptions.StripeAuthenticationError": "drf_standardized_errors.exceptions.BaseAPIException",
+        "utils.custom_exceptions.StripeAPIConnectionError": "drf_standardized_errors.exceptions.BaseAPIException",
+        "utils.custom_exceptions.StripeGeneralError": "drf_standardized_errors.exceptions.BaseAPIException",
+    },
 }
 
 LOGIN_URL = reverse_lazy("authentication:token_obtain_pair")

@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from wishlist.services import WishlistService
 from shop.models import Product
-from utils.custom_exception import (
+from utils.custom_exceptions import (
     ProductAlreadyExistException,
     ProductNotExistException,
 )
