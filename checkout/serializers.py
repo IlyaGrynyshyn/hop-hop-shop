@@ -6,6 +6,15 @@ from checkout.models import Order, OrderItem
 
 class CardInformationSerializer(serializers.Serializer):
     @staticmethod
+    def validate_card_number(value):
+        value = value.replace(" ", "")
+        if not value.isdigit():
+            raise serializers.ValidationError("Card number is invalid")
+        if not 13 <= len(value) <= 19:
+            raise serializers.ValidationError("Card number is invalid")
+        return value
+
+    @staticmethod
     def check_expiry_month(value):
         if not 1 <= int(value) <= 12:
             raise serializers.ValidationError("Invalid expiry month.")
@@ -27,7 +36,9 @@ class CardInformationSerializer(serializers.Serializer):
         if payment_method not in ["card"]:
             raise serializers.ValidationError("Invalid payment_method.")
 
-    card_number = serializers.CharField(max_length=150, required=True)
+    card_number = serializers.CharField(
+        max_length=150, required=True, validators=[validate_card_number]
+    )
     expiry_month = serializers.CharField(
         max_length=150,
         required=True,
