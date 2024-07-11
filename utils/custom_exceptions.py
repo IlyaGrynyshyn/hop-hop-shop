@@ -3,6 +3,16 @@ from drf_standardized_errors.handler import ExceptionHandler
 from rest_framework.exceptions import APIException
 
 
+class ProductAlreadyExistException(APIException):
+    status_code = 400
+    default_detail = "Product is already exist."
+
+
+class ProductNotExistException(APIException):
+    status_code = 400
+    default_detail = "Product does not exist."
+
+
 class CartEmptyException(APIException):
     status_code = 400
     default_detail = "Cart is empty"
@@ -50,15 +60,3 @@ class CartExceptionHandler(ExceptionHandler):
             return CartEmptyException()
         else:
             return super().convert_known_exceptions(exc)
-
-
-class ProductAlreadyExistException(Exception):
-    def __init__(self):
-        self.message = f"Product is already exist."
-        super().__init__(self.message)
-
-
-class ProductNotExistException(Exception):
-    def __init__(self):
-        self.message = f"Product does not exist."
-        super().__init__(self.message)

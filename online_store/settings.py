@@ -204,6 +204,8 @@ DRF_STANDARDIZED_ERRORS = {
         "utils.custom_exceptions.StripeAuthenticationError": "drf_standardized_errors.exceptions.BaseAPIException",
         "utils.custom_exceptions.StripeAPIConnectionError": "drf_standardized_errors.exceptions.BaseAPIException",
         "utils.custom_exceptions.StripeGeneralError": "drf_standardized_errors.exceptions.BaseAPIException",
+        "utils.custom_exceptions.ProductAlreadyExistException": "drf_standardized_errors.exceptions.BaseAPIException",
+        "utils.custom_exceptions.ProductNotExistException": "drf_standardized_errors.exceptions.BaseAPIException",
     },
 }
 
