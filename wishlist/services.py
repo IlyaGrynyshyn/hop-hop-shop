@@ -1,7 +1,7 @@
 from django.conf import settings
 from shop.models import Product
 from shop.serializers import ProductSerializer
-from utils.custom_exception import (
+from utils.custom_exceptions import (
     ProductAlreadyExistException,
     ProductNotExistException,
 )

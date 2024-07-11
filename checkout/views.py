@@ -1,10 +1,13 @@
 from rest_framework import status, generics
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from checkout.serializers import OrderSerializer
 
 
-from checkout.services import create_order, stripe_card_payment
-
+from checkout.services import (
+    OrderService,
+    PaymentService,
+)
 
 
 class CheckoutView(generics.CreateAPIView):
@@ -13,19 +16,28 @@ class CheckoutView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         serializer = OrderSerializer(data=request.data)
         if serializer.is_valid():
-            order, card_information, total_price = create_order(
-                serializer.validated_data, request
+            order_service = OrderService(request)
+            payment_service = PaymentService()
+
+            order_data = order_service.create_order(serializer.validated_data)
+            response = payment_service.stripe_card_payment(
+                order_data.card_information, order_data.total_price
             )
-            response = stripe_card_payment(card_information, total_price)
+            print(response)
             if response.status_code == status.HTTP_200_OK:
-                order.paid = True
-                order.status = "Pending"
-                order.save()
+                order_data.order.paid = True
+                order_data.order.status = "Paid"
+                order_data.order.save()
+                order_service.clear_cart()
+
                 return Response(
-                    {"order": serializer.data},
+                    {
+                        "order": serializer.data,
+                        "message": "Order created and payment successful",
+                    },
                     status=status.HTTP_201_CREATED,
                 )
             else:
-                order.delete()
+                order_data.order.delete()
                 return response
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        raise ValidationError(serializer.errors)
