@@ -4,9 +4,13 @@ from shop.models import Product
 
 
 class OrderStatus(models.TextChoices):
-    STATUS_NEW = "New"
     STATUS_PENDING = "Pending"
+    STATUS_PAID = "Paid"
+    STATUS_CANCELLED = "Cancelled"
+    STATUS_REFUNDED = "Refunded"
     STATUS_SHIPPED = "Shipped"
+    STATUS_DELIVERED = "Delivered"
+    STATUS_COMPLETED = "Completed"
 
 
 class Order(models.Model):
@@ -25,7 +29,7 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.CharField(
-        max_length=50, choices=OrderStatus.choices, default=OrderStatus.STATUS_NEW
+        max_length=50, choices=OrderStatus.choices, default=OrderStatus.STATUS_PENDING
     )
 
     def __str__(self):
