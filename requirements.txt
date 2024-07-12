@@ -18,11 +18,13 @@ djangorestframework==3.15.1
 djangorestframework-simplejwt==5.3.1
 drf-spectacular==0.27.2
 drf-standardized-errors==0.13.0
+exceptiongroup==1.2.1
 factory-boy==3.3.0
 Faker==25.2.0
 gunicorn==22.0.0
 idna==3.7
 inflection==0.5.1
+iniconfig==2.0.0
 jsonschema==4.22.0
 jsonschema-specifications==2023.12.1
 mypy-extensions==1.0.0
@@ -30,8 +32,10 @@ packaging==24.0
 pathspec==0.12.1
 pillow==10.3.0
 platformdirs==4.2.1
+pluggy==1.5.0
 psycopg2-binary==2.9.9
 PyJWT==2.8.0
+pytest==8.2.2
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
 pytils==0.4.1
@@ -42,6 +46,7 @@ requests==2.31.0
 rpds-py==0.18.1
 six==1.16.0
 sqlparse==0.5.0
+stripe==10.2.0
 tomli==2.0.1
 typing_extensions==4.11.0
 uritemplate==4.1.1
