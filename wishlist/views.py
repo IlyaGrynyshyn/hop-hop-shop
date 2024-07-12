@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from wishlist.services import WishlistService
 from shop.models import Product
-from utils.custom_exception import (
+from utils.custom_exceptions import (
     ProductAlreadyExistException,
     ProductNotExistException,
 )
@@ -23,18 +23,11 @@ class AddToWishlistView(APIView):
         wishlist_service = WishlistService(request)
         try:
             product = Product.objects.get(id=product_id)
-        except Product.DoesNotExist:
-            return Response(
-                {"error": "Product not found."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
-        try:
             wishlist_service.add(product=product)
-        except ProductAlreadyExistException as error:
-            return Response(
-                {"error": error.message},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        except Product.DoesNotExist:
+            raise ProductNotExistException
+        except ProductAlreadyExistException:
+            raise ProductAlreadyExistException
 
         return Response(wishlist_service, status=status.HTTP_200_OK)
 
@@ -45,12 +38,9 @@ class RemoveFromWishlistView(APIView):
         wishlist_service = WishlistService(request)
         try:
             product = Product.objects.get(id=product_id)
-        except Product.DoesNotExist:
-            return Response(
-                {"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND
-            )
-        try:
             wishlist_service.remove(product=product)
-        except ProductNotExistException as error:
-            return Response({"error": error.message}, status=status.HTTP_404_NOT_FOUND)
+        except Product.DoesNotExist:
+            raise Product.DoesNotExist
+        except ProductNotExistException:
+            raise ProductNotExistException
         return Response(status=status.HTTP_204_NO_CONTENT)
