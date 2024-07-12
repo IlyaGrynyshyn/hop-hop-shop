@@ -3,10 +3,13 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from cart.models import Cart, CartItem, Coupon
-from cart.serializers import CartSerializer, CouponSerializer
+from cart.models import Cart, Coupon
+from cart.serializers import CouponSerializer
 from shop.models import Product
 from cart.services import CartSessionService, CartDBService
+from utils.custom_exceptions import (
+    ProductNotExistException,
+)
 
 
 def cart_session_response(cart_service):
@@ -51,9 +54,7 @@ class CartAddItemView(APIView):
         try:
             product = Product.objects.get(id=product_id)
         except Product.DoesNotExist:
-            return Response(
-                {"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND
-            )
+            raise ProductNotExistException
 
         if request.user.is_authenticated:
             cart_service = CartDBService(request.user)
@@ -81,9 +82,7 @@ class CartRemoveItemView(APIView):
         try:
             product = Product.objects.get(id=product_id)
         except Product.DoesNotExist:
-            return Response(
-                {"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND
-            )
+            raise ProductNotExistException
 
         if request.user.is_authenticated:
             # Implement removal for authenticated users
@@ -105,9 +104,7 @@ class CartSubtractItemView(APIView):
         try:
             product = Product.objects.get(id=product_id)
         except Product.DoesNotExist:
-            return Response(
-                {"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND
-            )
+            raise ProductNotExistException
 
         cart_service = CartSessionService(request)
         cart_service.subtraction_quantity(product)
@@ -128,10 +125,7 @@ class UseCouponView(APIView):
         try:
             coupon = Coupon.objects.get(code=code, active=True)
         except Coupon.DoesNotExist:
-            return Response(
-                {"error": "Invalid or inactive coupon"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            raise ProductNotExistException
 
         if request.user.is_authenticated:
             cart, _ = Cart.objects.get_or_create(user=request.user)
