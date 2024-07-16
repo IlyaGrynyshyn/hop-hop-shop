@@ -9,6 +9,51 @@ from shop.models import Product
 from shop.serializers import ProductSerializer
 
 
+class CartService:
+    """
+    General service to handle cart operations depending on user authentication status.
+    """
+
+    def __init__(self, request):
+        self.request = request
+        if self.request.user.is_authenticated:
+            self.service = CartDBService(self.request.user)
+        else:
+            self.service = CartSessionService(self.request)
+
+    def add(
+        self, product: Product, quantity: int = 1, update_quantity: bool = False
+    ) -> None:
+        self.service.add(product, quantity, update_quantity)
+
+    def subtract_quantity(self, product: Product) -> None:
+        self.service.subtract_quantity(product)
+
+    def remove(self, product: Product) -> None:
+        self.service.remove(product)
+
+    def clear(self) -> None:
+        self.service.clear()
+
+    def add_coupon(self, coupon: Coupon) -> None:
+        self.service.add_coupon(coupon)
+
+    def remove_coupon(self) -> None:
+        self.service.remove_coupon()
+
+    def coupon_is_used(self) -> bool:
+        return self.service.coupon_is_used()
+
+    def get_total_price(self) -> Decimal:
+        return self.service.get_total_price()
+
+    def get_total_item(self) -> int:
+        return self.service.get_total_item()
+
+    def __iter__(self):
+        return iter(self.service)
+
+
 class CartSessionService:
     """
     Service for managing cart operations within a session.
@@ -44,7 +89,7 @@ class CartSessionService:
             self.cart[product_id]["quantity"] += quantity
         self.save()
 
-    def subtraction_quantity(self, product: Product) -> None:
+    def subtract_quantity(self, product: Product) -> None:
         """
         Subtract a product from the cart or update its quantity
         """
