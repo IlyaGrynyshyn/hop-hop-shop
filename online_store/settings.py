@@ -3,6 +3,7 @@ from pathlib import Path
 
 from django.urls import reverse_lazy
 from dotenv import load_dotenv
+from datetime import timedelta
 
 from utils.settings_utils import add_prefix_to_allowed_hosts
 
@@ -209,7 +210,21 @@ DRF_STANDARDIZED_ERRORS = {
     },
 }
 
-LOGIN_URL = reverse_lazy("authentication:token_obtain_pair")
+CSRF_COOKIE_HTTPONLY = True
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "AUTH_COOKIE": "refresh_token",
+    "AUTH_COOKIE_SECURE": False,  # змініть на True в продакшені
+    "AUTH_COOKIE_HTTPONLY": True,
+    "AUTH_COOKIE_PATH": "/",
+    "AUTH_COOKIE_SAMESITE": "Lax",
+}
+
+LOGIN_URL = reverse_lazy("authentication:login")
 
 BRUTE_FORCE_THRESHOLD = 3  # Allow only 3 failed login attempts
 BRUTE_FORCE_TIMEOUT = 300  # Lock the user out for 5 minutes (300 seconds)
