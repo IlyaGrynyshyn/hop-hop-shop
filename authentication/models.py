@@ -8,7 +8,7 @@ from authentication.managers import UserManager
 class Customer(AbstractUser):
     username = None
     email = models.EmailField(_("email address"), unique=True)
-
+    phone_number = models.CharField(_("phone number"), max_length=17, blank=True)
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
