@@ -1,5 +1,727 @@
 [
   {
+    "model": "auth.permission",
+    "pk": 1,
+    "fields": {
+      "name": "Can add log entry",
+      "content_type": 1,
+      "codename": "add_logentry"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 2,
+    "fields": {
+      "name": "Can change log entry",
+      "content_type": 1,
+      "codename": "change_logentry"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 3,
+    "fields": {
+      "name": "Can delete log entry",
+      "content_type": 1,
+      "codename": "delete_logentry"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 4,
+    "fields": {
+      "name": "Can view log entry",
+      "content_type": 1,
+      "codename": "view_logentry"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 5,
+    "fields": {
+      "name": "Can add permission",
+      "content_type": 2,
+      "codename": "add_permission"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 6,
+    "fields": {
+      "name": "Can change permission",
+      "content_type": 2,
+      "codename": "change_permission"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 7,
+    "fields": {
+      "name": "Can delete permission",
+      "content_type": 2,
+      "codename": "delete_permission"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 8,
+    "fields": {
+      "name": "Can view permission",
+      "content_type": 2,
+      "codename": "view_permission"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 9,
+    "fields": {
+      "name": "Can add group",
+      "content_type": 3,
+      "codename": "add_group"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 10,
+    "fields": {
+      "name": "Can change group",
+      "content_type": 3,
+      "codename": "change_group"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 11,
+    "fields": {
+      "name": "Can delete group",
+      "content_type": 3,
+      "codename": "delete_group"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 12,
+    "fields": {
+      "name": "Can view group",
+      "content_type": 3,
+      "codename": "view_group"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 13,
+    "fields": {
+      "name": "Can add content type",
+      "content_type": 4,
+      "codename": "add_contenttype"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 14,
+    "fields": {
+      "name": "Can change content type",
+      "content_type": 4,
+      "codename": "change_contenttype"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 15,
+    "fields": {
+      "name": "Can delete content type",
+      "content_type": 4,
+      "codename": "delete_contenttype"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 16,
+    "fields": {
+      "name": "Can view content type",
+      "content_type": 4,
+      "codename": "view_contenttype"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 17,
+    "fields": {
+      "name": "Can add session",
+      "content_type": 5,
+      "codename": "add_session"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 18,
+    "fields": {
+      "name": "Can change session",
+      "content_type": 5,
+      "codename": "change_session"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 19,
+    "fields": {
+      "name": "Can delete session",
+      "content_type": 5,
+      "codename": "delete_session"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 20,
+    "fields": {
+      "name": "Can view session",
+      "content_type": 5,
+      "codename": "view_session"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 21,
+    "fields": {
+      "name": "Can add user",
+      "content_type": 6,
+      "codename": "add_customer"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 22,
+    "fields": {
+      "name": "Can change user",
+      "content_type": 6,
+      "codename": "change_customer"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 23,
+    "fields": {
+      "name": "Can delete user",
+      "content_type": 6,
+      "codename": "delete_customer"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 24,
+    "fields": {
+      "name": "Can view user",
+      "content_type": 6,
+      "codename": "view_customer"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 25,
+    "fields": {
+      "name": "Can add category",
+      "content_type": 7,
+      "codename": "add_category"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 26,
+    "fields": {
+      "name": "Can change category",
+      "content_type": 7,
+      "codename": "change_category"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 27,
+    "fields": {
+      "name": "Can delete category",
+      "content_type": 7,
+      "codename": "delete_category"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 28,
+    "fields": {
+      "name": "Can view category",
+      "content_type": 7,
+      "codename": "view_category"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 29,
+    "fields": {
+      "name": "Can add Product",
+      "content_type": 8,
+      "codename": "add_product"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 30,
+    "fields": {
+      "name": "Can change Product",
+      "content_type": 8,
+      "codename": "change_product"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 31,
+    "fields": {
+      "name": "Can delete Product",
+      "content_type": 8,
+      "codename": "delete_product"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 32,
+    "fields": {
+      "name": "Can view Product",
+      "content_type": 8,
+      "codename": "view_product"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 33,
+    "fields": {
+      "name": "Can add product image",
+      "content_type": 9,
+      "codename": "add_productimage"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 34,
+    "fields": {
+      "name": "Can change product image",
+      "content_type": 9,
+      "codename": "change_productimage"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 35,
+    "fields": {
+      "name": "Can delete product image",
+      "content_type": 9,
+      "codename": "delete_productimage"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 36,
+    "fields": {
+      "name": "Can view product image",
+      "content_type": 9,
+      "codename": "view_productimage"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 37,
+    "fields": {
+      "name": "Can add product attributes",
+      "content_type": 10,
+      "codename": "add_productattributes"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 38,
+    "fields": {
+      "name": "Can change product attributes",
+      "content_type": 10,
+      "codename": "change_productattributes"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 39,
+    "fields": {
+      "name": "Can delete product attributes",
+      "content_type": 10,
+      "codename": "delete_productattributes"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 40,
+    "fields": {
+      "name": "Can view product attributes",
+      "content_type": 10,
+      "codename": "view_productattributes"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 41,
+    "fields": {
+      "name": "Can add subscribed user",
+      "content_type": 11,
+      "codename": "add_subscribeduser"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 42,
+    "fields": {
+      "name": "Can change subscribed user",
+      "content_type": 11,
+      "codename": "change_subscribeduser"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 43,
+    "fields": {
+      "name": "Can delete subscribed user",
+      "content_type": 11,
+      "codename": "delete_subscribeduser"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 44,
+    "fields": {
+      "name": "Can view subscribed user",
+      "content_type": 11,
+      "codename": "view_subscribeduser"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 45,
+    "fields": {
+      "name": "Can add cart",
+      "content_type": 12,
+      "codename": "add_cart"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 46,
+    "fields": {
+      "name": "Can change cart",
+      "content_type": 12,
+      "codename": "change_cart"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 47,
+    "fields": {
+      "name": "Can delete cart",
+      "content_type": 12,
+      "codename": "delete_cart"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 48,
+    "fields": {
+      "name": "Can view cart",
+      "content_type": 12,
+      "codename": "view_cart"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 49,
+    "fields": {
+      "name": "Can add cart item",
+      "content_type": 13,
+      "codename": "add_cartitem"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 50,
+    "fields": {
+      "name": "Can change cart item",
+      "content_type": 13,
+      "codename": "change_cartitem"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 51,
+    "fields": {
+      "name": "Can delete cart item",
+      "content_type": 13,
+      "codename": "delete_cartitem"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 52,
+    "fields": {
+      "name": "Can view cart item",
+      "content_type": 13,
+      "codename": "view_cartitem"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 53,
+    "fields": {
+      "name": "Can add coupon",
+      "content_type": 14,
+      "codename": "add_coupon"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 54,
+    "fields": {
+      "name": "Can change coupon",
+      "content_type": 14,
+      "codename": "change_coupon"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 55,
+    "fields": {
+      "name": "Can delete coupon",
+      "content_type": 14,
+      "codename": "delete_coupon"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 56,
+    "fields": {
+      "name": "Can view coupon",
+      "content_type": 14,
+      "codename": "view_coupon"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 57,
+    "fields": {
+      "name": "Can add order",
+      "content_type": 15,
+      "codename": "add_order"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 58,
+    "fields": {
+      "name": "Can change order",
+      "content_type": 15,
+      "codename": "change_order"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 59,
+    "fields": {
+      "name": "Can delete order",
+      "content_type": 15,
+      "codename": "delete_order"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 60,
+    "fields": {
+      "name": "Can view order",
+      "content_type": 15,
+      "codename": "view_order"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 61,
+    "fields": {
+      "name": "Can add order item",
+      "content_type": 16,
+      "codename": "add_orderitem"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 62,
+    "fields": {
+      "name": "Can change order item",
+      "content_type": 16,
+      "codename": "change_orderitem"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 63,
+    "fields": {
+      "name": "Can delete order item",
+      "content_type": 16,
+      "codename": "delete_orderitem"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 64,
+    "fields": {
+      "name": "Can view order item",
+      "content_type": 16,
+      "codename": "view_orderitem"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 1,
+    "fields": {
+      "app_label": "admin",
+      "model": "logentry"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 2,
+    "fields": {
+      "app_label": "auth",
+      "model": "permission"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 3,
+    "fields": {
+      "app_label": "auth",
+      "model": "group"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 4,
+    "fields": {
+      "app_label": "contenttypes",
+      "model": "contenttype"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 5,
+    "fields": {
+      "app_label": "sessions",
+      "model": "session"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 6,
+    "fields": {
+      "app_label": "authentication",
+      "model": "customer"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 7,
+    "fields": {
+      "app_label": "shop",
+      "model": "category"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 8,
+    "fields": {
+      "app_label": "shop",
+      "model": "product"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 9,
+    "fields": {
+      "app_label": "shop",
+      "model": "productimage"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 10,
+    "fields": {
+      "app_label": "shop",
+      "model": "productattributes"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 11,
+    "fields": {
+      "app_label": "email_subscription",
+      "model": "subscribeduser"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 12,
+    "fields": {
+      "app_label": "cart",
+      "model": "cart"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 13,
+    "fields": {
+      "app_label": "cart",
+      "model": "cartitem"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 14,
+    "fields": {
+      "app_label": "cart",
+      "model": "coupon"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 15,
+    "fields": {
+      "app_label": "checkout",
+      "model": "order"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 16,
+    "fields": {
+      "app_label": "checkout",
+      "model": "orderitem"
+    }
+  },
+  {
+    "model": "authentication.customer",
+    "pk": 1,
+    "fields": {
+      "password": "pbkdf2_sha256$720000$XMLpCpo2kFrLYTUG8tuIbP$HdukXNbEi+/HcWfgogJxLN89wUO5qhRlI9SDYXR2/6A=",
+      "last_login": null,
+      "is_superuser": true,
+      "first_name": "",
+      "last_name": "",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2024-07-18T10:15:44.685Z",
+      "email": "admin@admin.com",
+      "phone_number": "",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
     "model": "shop.category",
     "pk": 1,
     "fields": {
@@ -69,7 +791,7 @@
       "name": "Smartphone",
       "category": 1,
       "slug": "smartphone",
-      "price": 699,
+      "price": "699.00",
       "SKU": 123456,
       "description": "Latest model with advanced features",
       "views": 50
@@ -82,7 +804,7 @@
       "name": "Laptop",
       "category": 1,
       "slug": "laptop",
-      "price": 999,
+      "price": "999.00",
       "SKU": 123457,
       "description": "High-performance laptop for work and play",
       "views": 100
@@ -95,7 +817,7 @@
       "name": "Bluetooth Speaker",
       "category": 1,
       "slug": "bluetooth-speaker",
-      "price": 49,
+      "price": "49.00",
       "SKU": 123458,
       "description": "Portable speaker with excellent sound quality",
       "views": 75
@@ -108,7 +830,7 @@
       "name": "E-Reader",
       "category": 2,
       "slug": "e-reader",
-      "price": 129,
+      "price": "129.00",
       "SKU": 223456,
       "description": "E-Reader with high-resolution display",
       "views": 80
@@ -121,7 +843,7 @@
       "name": "Science Fiction Book",
       "category": 2,
       "slug": "science-fiction-book",
-      "price": 20,
+      "price": "20.00",
       "SKU": 223457,
       "description": "A captivating science fiction story",
       "views": 150
@@ -134,7 +856,7 @@
       "name": "Cookbook",
       "category": 2,
       "slug": "cookbook",
-      "price": 25,
+      "price": "25.00",
       "SKU": 223458,
       "description": "Delicious recipes for everyday meals",
       "views": 60
@@ -147,7 +869,7 @@
       "name": "T-Shirt",
       "category": 3,
       "slug": "t-shirt",
-      "price": 15,
+      "price": "15.00",
       "SKU": 323456,
       "description": "Comfortable cotton t-shirt",
       "views": 90
@@ -160,7 +882,7 @@
       "name": "Jeans",
       "category": 3,
       "slug": "jeans",
-      "price": 40,
+      "price": "40.00",
       "SKU": 323457,
       "description": "Stylish denim jeans",
       "views": 110
@@ -173,7 +895,7 @@
       "name": "Jacket",
       "category": 3,
       "slug": "jacket",
-      "price": 60,
+      "price": "60.00",
       "SKU": 323458,
       "description": "Warm winter jacket",
       "views": 70
@@ -186,7 +908,7 @@
       "name": "Blender",
       "category": 4,
       "slug": "blender",
-      "price": 30,
+      "price": "30.00",
       "SKU": 423456,
       "description": "High-speed blender for smoothies",
       "views": 50
@@ -199,7 +921,7 @@
       "name": "Coffee Maker",
       "category": 4,
       "slug": "coffee-maker",
-      "price": 80,
+      "price": "80.00",
       "SKU": 423457,
       "description": "Automatic coffee maker with timer",
       "views": 65
@@ -212,7 +934,7 @@
       "name": "Vacuum Cleaner",
       "category": 4,
       "slug": "vacuum-cleaner",
-      "price": 150,
+      "price": "150.00",
       "SKU": 423458,
       "description": "Powerful vacuum cleaner with multiple attachments",
       "views": 120
@@ -225,7 +947,7 @@
       "name": "Action Figure",
       "category": 5,
       "slug": "action-figure",
-      "price": 25,
+      "price": "25.00",
       "SKU": 523456,
       "description": "Collectible action figure",
       "views": 90
@@ -238,7 +960,7 @@
       "name": "Board Game",
       "category": 5,
       "slug": "board-game",
-      "price": 40,
+      "price": "40.00",
       "SKU": 523457,
       "description": "Fun board game for the whole family",
       "views": 150
@@ -251,7 +973,7 @@
       "name": "Puzzle",
       "category": 5,
       "slug": "puzzle",
-      "price": 20,
+      "price": "20.00",
       "SKU": 523458,
       "description": "Challenging jigsaw puzzle",
       "views": 70
@@ -264,7 +986,7 @@
       "name": "Tennis Racket",
       "category": 6,
       "slug": "tennis-racket",
-      "price": 100,
+      "price": "100.00",
       "SKU": 623456,
       "description": "Lightweight tennis racket",
       "views": 80
@@ -277,7 +999,7 @@
       "name": "Yoga Mat",
       "category": 6,
       "slug": "yoga-mat",
-      "price": 30,
+      "price": "30.00",
       "SKU": 623457,
       "description": "Non-slip yoga mat",
       "views": 95
@@ -290,7 +1012,7 @@
       "name": "Running Shoes",
       "category": 6,
       "slug": "running-shoes",
-      "price": 120,
+      "price": "120.00",
       "SKU": 623458,
       "description": "Comfortable running shoes",
       "views": 110
@@ -303,7 +1025,7 @@
       "name": "Shampoo",
       "category": 7,
       "slug": "shampoo",
-      "price": 10,
+      "price": "10.00",
       "SKU": 723456,
       "description": "Nourishing shampoo for all hair types",
       "views": 50
@@ -316,7 +1038,7 @@
       "name": "Lipstick",
       "category": 7,
       "slug": "lipstick",
-      "price": 20,
+      "price": "20.00",
       "SKU": 723457,
       "description": "Long-lasting lipstick",
       "views": 75
@@ -329,7 +1051,7 @@
       "name": "Face Cream",
       "category": 7,
       "slug": "face-cream",
-      "price": 30,
+      "price": "30.00",
       "SKU": 723458,
       "description": "Moisturizing face cream",
       "views": 60
@@ -1044,6 +1766,17 @@
       "style": "Moisturizing",
       "size": 50,
       "product": 21
+    }
+  },
+  {
+    "model": "cart.coupon",
+    "pk": 1,
+    "fields": {
+      "code": "1234",
+      "discount": 50,
+      "active": true,
+      "valid_from": null,
+      "valid_to": null
     }
   }
 ]
