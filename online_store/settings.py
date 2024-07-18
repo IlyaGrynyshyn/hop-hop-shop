@@ -222,7 +222,7 @@ SIMPLE_JWT = {
     "AUTH_COOKIE_SECURE": True,  # змініть на True в продакшені
     "AUTH_COOKIE_HTTPONLY": True,
     "AUTH_COOKIE_PATH": "/",
-    "AUTH_COOKIE_SAMESITE": "Lax",
+    "AUTH_COOKIE_SAMESITE": "None",
 }
 
 LOGIN_URL = reverse_lazy("authentication:login")
