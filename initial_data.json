@@ -1767,16 +1767,5 @@
       "size": 50,
       "product": 21
     }
-  },
-  {
-    "model": "cart.coupon",
-    "pk": 1,
-    "fields": {
-      "code": "1234",
-      "discount": 50,
-      "active": true,
-      "valid_from": null,
-      "valid_to": null
-    }
   }
 ]
