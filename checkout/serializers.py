@@ -1,4 +1,5 @@
 import datetime
+
 from rest_framework import serializers
 
 from checkout.models import Order, OrderItem
@@ -60,6 +61,21 @@ class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderItem
         fields = ["product", "quantity", "price"]
+
+
+class OrderListSerializer(serializers.ModelSerializer):
+    total_quantity = serializers.SerializerMethodField()
+    total_price = serializers.SerializerMethodField()
+
+    def get_total_quantity(self, obj):
+        return sum(item.quantity for item in obj.items.all())
+
+    def get_total_price(self, obj):
+        return sum(item.quantity * item.price for item in obj.items.all())
+
+    class Meta:
+        model = Order
+        fields = ["id", "status", "created_at", "total_quantity", "total_price"]
 
 
 class OrderSerializer(serializers.ModelSerializer):
