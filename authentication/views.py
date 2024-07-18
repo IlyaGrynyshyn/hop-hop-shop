@@ -14,6 +14,7 @@ from authentication.serializers import (
     ChangePasswordSerializer,
     LoginSerializer,
 )
+from utils.custom_exceptions import InvalidCredentialsError
 
 
 class CreateCustomerView(generics.CreateAPIView):
@@ -26,14 +27,57 @@ class CreateCustomerView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
 
-        refresh = RefreshToken.for_user(user)
-        response_data = {
-            "user": serializer.data,
-            "access": str(refresh.access_token),
-            "refresh": str(refresh),
-        }
+        if user is not None:
+            refresh = RefreshToken.for_user(user)
+            response = Response(status=status.HTTP_201_CREATED)
+            response.set_cookie(
+                key=settings.SIMPLE_JWT["AUTH_COOKIE"],
+                value=refresh,
+                expires=settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"],
+                secure=settings.SIMPLE_JWT["AUTH_COOKIE_SECURE"],
+                httponly=True,
+                samesite=settings.SIMPLE_JWT["AUTH_COOKIE_SAMESITE"],
+            )
+            response.data = {
+                "user": CustomerSerializer(user).data,
+                "access": str(refresh.access_token),
+                "refresh": str(refresh),
+            }
+            return response
 
-        return Response(response_data, status=status.HTTP_201_CREATED)
+
+class LoginView(APIView):
+    serializer_class = LoginSerializer
+
+    def post(self, request, *args, **kwargs):
+        email = request.data.get("email")
+        password = request.data.get("password")
+        user = authenticate(email=email, password=password)
+
+        if user is not None:
+            refresh = RefreshToken.for_user(user)
+            response = Response()
+            response.set_cookie(
+                key=settings.SIMPLE_JWT["AUTH_COOKIE"],
+                value=refresh,
+                expires=settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"],
+                secure=settings.SIMPLE_JWT["AUTH_COOKIE_SECURE"],
+                httponly=True,
+                samesite=settings.SIMPLE_JWT["AUTH_COOKIE_SAMESITE"],
+            )
+            response.data = {
+                "user": CustomerSerializer(user).data,
+                "access": str(refresh.access_token),
+            }
+            return response
+        raise InvalidCredentialsError
+
+
+class CustomTokenRefreshView(TokenRefreshView):
+    def post(self, request, *args, **kwargs):
+        refresh_token = request.COOKIES.get(settings.SIMPLE_JWT["AUTH_COOKIE"])
+        request.data["refresh"] = refresh_token
+        return super().post(request, *args, **kwargs)
 
 
 class ManageUserView(generics.RetrieveUpdateAPIView):
@@ -50,46 +94,3 @@ class ChangePasswordViewSet(generics.UpdateAPIView):
     queryset = get_user_model()
     serializer_class = ChangePasswordSerializer
     permission_classes = [IsAuthenticated]
-
-
-class LoginView(APIView):
-    serializer_class = LoginSerializer
-
-    def post(self, request, *args, **kwargs):
-        username = request.data.get("username")
-        password = request.data.get("password")
-        user = authenticate(username=username, password=password)
-
-        if user is not None:
-            refresh = RefreshToken.for_user(user)
-            response = Response()
-            response.set_cookie(
-                key=settings.SIMPLE_JWT["AUTH_COOKIE"],
-                value=refresh,
-                expires=settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"],
-                secure=settings.SIMPLE_JWT["AUTH_COOKIE_SECURE"],
-                httponly=True,
-                samesite=settings.SIMPLE_JWT["AUTH_COOKIE_SAMESITE"],
-            )
-            response.data = {
-                "user": {
-                    "id": user.id,
-                    "email": user.email,
-                    "first_name": user.first_name,
-                    "last_name": user.last_name,
-                    "is_staff": user.is_staff,
-                },
-                "access": str(refresh.access_token),
-            }
-            return response
-        else:
-            return Response(
-                {"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
-            )
-
-
-class CustomTokenRefreshView(TokenRefreshView):
-    def post(self, request, *args, **kwargs):
-        refresh_token = request.COOKIES.get(settings.SIMPLE_JWT["AUTH_COOKIE"])
-        request.data["refresh"] = refresh_token
-        return super().post(request, *args, **kwargs)
