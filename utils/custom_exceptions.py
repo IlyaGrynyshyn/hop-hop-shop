@@ -54,6 +54,12 @@ class StripeGeneralError(APIException):
     default_code = "stripe_error"
 
 
+class InvalidCredentialsError(APIException):
+    status_code = 401
+    default_detail = "Invalid credentials."
+    default_code = "invalid_credentials"
+
+
 class CartExceptionHandler(ExceptionHandler):
     def convert_known_exceptions(self, exc: Exception) -> Exception:
         if isinstance(exc, requests.Timeout):

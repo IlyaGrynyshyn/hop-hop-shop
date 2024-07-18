@@ -3,11 +3,19 @@ from rest_framework import serializers
 
 
 class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField()
+    email = serializers.CharField()
     password = serializers.CharField()
 
 
 class CustomerSerializer(serializers.ModelSerializer):
+    user_role = serializers.SerializerMethodField()
+
+    def get_user_role(self, obj):
+        if obj.is_superuser:
+            return "Admin"
+        elif obj.is_staff:
+            return "Staff"
+        return "User"
 
     class Meta:
         model = get_user_model()
@@ -18,9 +26,9 @@ class CustomerSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "phone_number",
-            "is_staff",
+            "user_role",
         )
-        read_only_fields = ("id", "is_staff")
+        read_only_fields = ["id", "user_role"]
         extra_kwargs = {"password": {"write_only": True, "min_length": 6}}
 
     def create(self, validated_data):
