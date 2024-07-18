@@ -219,7 +219,7 @@ SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "AUTH_COOKIE": "refresh_token",
-    "AUTH_COOKIE_SECURE": False,  # змініть на True в продакшені
+    "AUTH_COOKIE_SECURE": True,  # змініть на True в продакшені
     "AUTH_COOKIE_HTTPONLY": True,
     "AUTH_COOKIE_PATH": "/",
     "AUTH_COOKIE_SAMESITE": "Lax",
