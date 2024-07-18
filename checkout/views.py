@@ -1,9 +1,11 @@
-from rest_framework import status, generics
+from drf_spectacular.utils import extend_schema
+from rest_framework import status, generics, viewsets
 from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import IsAdminUser, AllowAny
 from rest_framework.response import Response
-from checkout.serializers import OrderSerializer
 
-
+from checkout.models import Order
+from checkout.serializers import OrderSerializer, OrderListSerializer
 from checkout.services import (
     OrderService,
     PaymentService,
@@ -23,7 +25,6 @@ class CheckoutView(generics.CreateAPIView):
             response = payment_service.stripe_card_payment(
                 order_data.card_information, order_data.total_price
             )
-            print(response)
             if response.status_code == status.HTTP_200_OK:
                 order_data.order.paid = True
                 order_data.order.status = "Paid"
@@ -41,3 +42,54 @@ class CheckoutView(generics.CreateAPIView):
                 order_data.order.delete()
                 return response
         raise ValidationError(serializer.errors)
+
+
+@extend_schema(tags=["orders"], summary="Get all orders")
+class OrderListView(viewsets.ModelViewSet):
+    queryset = Order.objects.all().select_related("customer")
+    http_method_names = ["get", "post", "patch", "delete", "head", "options"]
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return OrderListSerializer
+        return OrderSerializer
+
+    def get_permissions(self):
+        if self.request.method == "DELETE":
+            return [IsAdminUser()]
+        return [AllowAny()]
+
+    @extend_schema(
+        summary="Retrieve a list of orders",
+        description="This endpoint returns a list of all orders.",
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Create a new order",
+        description="This endpoint allows you to create a new order.",
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Retrieve an order by ID",
+        description="This endpoint returns details of a specific order identified by its ID.",
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Partially update an order",
+        description="This endpoint allows you to partially update an existing order.",
+    )
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Delete an order",
+        description="This endpoint allows you to delete an existing order.",
+    )
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
