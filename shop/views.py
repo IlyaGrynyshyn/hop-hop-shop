@@ -20,7 +20,6 @@ from utils.permissions import IsAdminUserOrReadOnly
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    pagination_class = Pagination
     permission_classes = (IsAdminUserOrReadOnly,)
     http_method_names = ["get", "post", "patch", "delete", "head", "options"]
 
