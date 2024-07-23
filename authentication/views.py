@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from drf_spectacular.utils import extend_schema
 from rest_framework import generics
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -17,6 +17,7 @@ from authentication.serializers import (
     LoginSerializer,
 )
 from utils.custom_exceptions import InvalidCredentialsError
+from utils.pagination import Pagination
 
 
 @extend_schema(tags=["authentication"], summary="Registering a new user")
@@ -134,6 +135,8 @@ class CustomersListView(generics.ListAPIView):
 
     serializer_class = CustomerSerializer
     queryset = Customer.objects.all()
+    pagination_class = Pagination
+    permission_classes = (IsAdminUser,)
 
 
 @extend_schema(tags=["customer data"], summary="Get information about your profile")

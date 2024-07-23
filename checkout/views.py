@@ -4,12 +4,15 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAdminUser, AllowAny
 from rest_framework.response import Response
 
+from checkout.tasks.order_notification import send_notification_mail
+
 from checkout.models import Order
 from checkout.serializers import OrderSerializer, OrderListSerializer
 from checkout.services import (
     OrderService,
     PaymentService,
 )
+from utils.pagination import Pagination
 
 
 class CheckoutView(generics.CreateAPIView):
@@ -29,6 +32,7 @@ class CheckoutView(generics.CreateAPIView):
                 order_data.order.paid = True
                 order_data.order.status = "Paid"
                 order_data.order.save()
+                send_notification_mail.delay(user_email=order_data.order.email)
                 order_service.clear_cart()
 
                 return Response(
@@ -46,18 +50,16 @@ class CheckoutView(generics.CreateAPIView):
 
 @extend_schema(tags=["orders"], summary="Get all orders")
 class OrderListView(viewsets.ModelViewSet):
+    permission_classes = (IsAdminUser,)
+    pagination_class = Pagination
+
     queryset = Order.objects.all().select_related("customer")
-    http_method_names = ["get", "post", "patch", "delete", "head", "options"]
+    http_method_names = ["get", "patch", "delete", "head", "options"]
 
     def get_serializer_class(self):
         if self.action == "list":
             return OrderListSerializer
         return OrderSerializer
-
-    def get_permissions(self):
-        if self.request.method == "DELETE":
-            return [IsAdminUser()]
-        return [AllowAny()]
 
     @extend_schema(
         summary="Retrieve a list of orders",
@@ -65,13 +67,6 @@ class OrderListView(viewsets.ModelViewSet):
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
-
-    @extend_schema(
-        summary="Create a new order",
-        description="This endpoint allows you to create a new order.",
-    )
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
 
     @extend_schema(
         summary="Retrieve an order by ID",
