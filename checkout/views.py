@@ -12,6 +12,7 @@ from checkout.services import (
     OrderService,
     PaymentService,
 )
+from utils.pagination import Pagination
 
 
 class CheckoutView(generics.CreateAPIView):
@@ -49,6 +50,9 @@ class CheckoutView(generics.CreateAPIView):
 
 @extend_schema(tags=["orders"], summary="Get all orders")
 class OrderListView(viewsets.ModelViewSet):
+    permission_classes = (IsAdminUser,)
+    pagination_class = Pagination
+
     queryset = Order.objects.all().select_related("customer")
     http_method_names = ["get", "patch", "delete", "head", "options"]
 
@@ -56,11 +60,6 @@ class OrderListView(viewsets.ModelViewSet):
         if self.action == "list":
             return OrderListSerializer
         return OrderSerializer
-
-    def get_permissions(self):
-        if self.request.method == "DELETE":
-            return [IsAdminUser()]
-        return [AllowAny()]
 
     @extend_schema(
         summary="Retrieve a list of orders",

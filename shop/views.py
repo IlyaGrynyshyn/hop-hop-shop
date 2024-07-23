@@ -12,11 +12,16 @@ from django_filters.rest_framework import DjangoFilterBackend
 from shop.filters import ProductFilter
 from drf_spectacular.utils import extend_schema, OpenApiParameter, extend_schema_view
 
+from utils.pagination import Pagination
+from utils.permissions import IsAdminUserOrReadOnly
+
 
 @extend_schema(tags=["categories"])
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    pagination_class = Pagination
+    permission_classes = (IsAdminUserOrReadOnly,)
     http_method_names = ["get", "post", "patch", "delete", "head", "options"]
 
     @extend_schema(
@@ -102,6 +107,8 @@ class CategoryViewSet(viewsets.ModelViewSet):
 @extend_schema(tags=["products"])
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.select_related("category").all()
+    permission_classes = (IsAdminUserOrReadOnly,)
+    pagination_class = Pagination
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_class = ProductFilter
     ordering_fields = ["views", "price"]
