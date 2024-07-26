@@ -25,6 +25,7 @@ class Pagination(pagination.PageNumberPagination):
                     "current_page": self.page.number,
                     "previous_page": self.get_previous_link(),
                 },
+                "items_count": self.page.paginator.count,
                 "items": data,
             }
         )

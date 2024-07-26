@@ -1,20 +1,19 @@
-from rest_framework.filters import OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import extend_schema, OpenApiParameter, extend_schema_view
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
+from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
+
+from shop.filters import ProductFilter
 from shop.models import Category, Product
 from shop.serializers import (
     CategorySerializer,
     ProductSerializer,
     ProductDetailSerializer,
-    ProductImageSerializer,
     CategoryImageSerializer,
 )
-from django_filters.rest_framework import DjangoFilterBackend
-from shop.filters import ProductFilter, CategoryFilter
-from drf_spectacular.utils import extend_schema, OpenApiParameter, extend_schema_view
-
 from utils.pagination import Pagination
 from utils.permissions import IsAdminUserOrReadOnly
 
@@ -23,6 +22,7 @@ from utils.permissions import IsAdminUserOrReadOnly
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    pagination_class = Pagination
     permission_classes = (IsAdminUserOrReadOnly,)
     http_method_names = ["get", "post", "patch", "delete", "head", "options"]
 

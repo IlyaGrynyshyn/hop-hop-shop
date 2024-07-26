@@ -33,6 +33,7 @@ class Category(models.Model):
 
     class Meta:
         app_label = "shop"
+        ordering = ["id"]
 
 
 class Product(models.Model):
