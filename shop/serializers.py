@@ -2,6 +2,12 @@ from rest_framework import serializers
 from shop.models import Category, Product, ProductAttributes, ProductImage
 
 
+class CategoryImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ("image",)
+
+
 class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductImage
@@ -11,7 +17,10 @@ class ProductImageSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ["id", "name", "slug", "image"]
+        fields = [
+            "id",
+            "name",
+        ]
 
 
 class ProductAttributesSerializer(serializers.ModelSerializer):

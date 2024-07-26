@@ -4,6 +4,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAdminUser, AllowAny
 from rest_framework.response import Response
 
+from checkout.filters import OrderFilter
 from checkout.tasks.order_notification import send_notification_mail
 
 from checkout.models import Order
@@ -52,6 +53,7 @@ class CheckoutView(generics.CreateAPIView):
 class OrderListView(viewsets.ModelViewSet):
     permission_classes = (IsAdminUser,)
     pagination_class = Pagination
+    filterset_class = OrderFilter
 
     queryset = Order.objects.all().select_related("customer")
     http_method_names = ["get", "patch", "delete", "head", "options"]

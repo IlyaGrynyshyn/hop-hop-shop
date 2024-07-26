@@ -1,15 +1,18 @@
 from rest_framework.filters import OrderingFilter
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from shop.models import Category, Product
 from shop.serializers import (
     CategorySerializer,
     ProductSerializer,
     ProductDetailSerializer,
+    ProductImageSerializer,
+    CategoryImageSerializer,
 )
 from django_filters.rest_framework import DjangoFilterBackend
-from shop.filters import ProductFilter
+from shop.filters import ProductFilter, CategoryFilter
 from drf_spectacular.utils import extend_schema, OpenApiParameter, extend_schema_view
 
 from utils.pagination import Pagination
@@ -22,6 +25,11 @@ class CategoryViewSet(viewsets.ModelViewSet):
     serializer_class = CategorySerializer
     permission_classes = (IsAdminUserOrReadOnly,)
     http_method_names = ["get", "post", "patch", "delete", "head", "options"]
+
+    def get_serializer_class(self):
+        if self.action == "upload-image":
+            return CategoryImageSerializer
+        return CategorySerializer
 
     @extend_schema(
         summary="Retrieve a list of categories",
@@ -70,13 +78,29 @@ class CategoryViewSet(viewsets.ModelViewSet):
     @extend_schema(
         summary="Delete a category",
         description="This endpoint allows you to delete a category identified by its ID.",
-        responses={
-            204: "Category deleted successfully",
-            404: "Category not found",
-        },
     )
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Upload image for category",
+        description="Endpoint for uploading image for category",
+    )
+    @action(
+        methods=["POST"],
+        detail=True,
+        url_path="upload-image",
+        permission_classes=[IsAdminUser],
+    )
+    def upload_image(self, request, pk=None):
+        categories = self.get_object()
+        serializer = self.get_serializer(categories, data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @extend_schema_view(
