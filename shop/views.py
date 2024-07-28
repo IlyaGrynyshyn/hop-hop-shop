@@ -13,6 +13,7 @@ from shop.serializers import (
     ProductSerializer,
     ProductDetailSerializer,
     CategoryImageSerializer,
+    ProductCreateUpdateSerializer,
 )
 from utils.pagination import Pagination
 from utils.permissions import IsAdminUserOrReadOnly
@@ -34,9 +35,6 @@ class CategoryViewSet(viewsets.ModelViewSet):
     @extend_schema(
         summary="Retrieve a list of categories",
         description="This endpoint returns a list of all categories. Supports pagination if configured.",
-        responses={
-            200: CategorySerializer(many=True),
-        },
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
@@ -44,10 +42,6 @@ class CategoryViewSet(viewsets.ModelViewSet):
     @extend_schema(
         summary="Create a new category",
         description="This endpoint allows you to create a new category. You need to provide the required fields.",
-        request=CategorySerializer,
-        responses={
-            201: CategorySerializer,
-        },
     )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
@@ -55,10 +49,6 @@ class CategoryViewSet(viewsets.ModelViewSet):
     @extend_schema(
         summary="Retrieve a specific category",
         description="This endpoint returns the details of a specific category identified by its ID.",
-        responses={
-            200: CategorySerializer,
-            404: "Category not found",
-        },
     )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
@@ -66,11 +56,6 @@ class CategoryViewSet(viewsets.ModelViewSet):
     @extend_schema(
         summary="Update an existing category",
         description="This endpoint allows you to update an existing category identified by its ID. You only need to provide the fields you want to update.",
-        request=CategorySerializer,
-        responses={
-            200: CategorySerializer,
-            404: "Category not found",
-        },
     )
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
@@ -130,7 +115,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 @extend_schema(tags=["products"])
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.select_related("category").all()
-    permission_classes = (IsAdminUserOrReadOnly,)
+    # permission_classes = (IsAdminUserOrReadOnly,)
     pagination_class = Pagination
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_class = ProductFilter
@@ -138,9 +123,11 @@ class ProductViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete", "head", "options"]
 
     def get_serializer_class(self):
-        if self.action == "retrieve":
-            return ProductDetailSerializer
-        return ProductSerializer
+        if self.action == "list":
+            return ProductSerializer
+        elif self.action == "create" or "partial_update":
+            return ProductCreateUpdateSerializer
+        return ProductDetailSerializer
 
     @extend_schema(
         summary="Retrieve a list of products",
@@ -165,9 +152,6 @@ class ProductViewSet(viewsets.ModelViewSet):
                 type=str,
             ),
         ],
-        responses={
-            200: ProductSerializer(many=True),
-        },
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
@@ -175,10 +159,6 @@ class ProductViewSet(viewsets.ModelViewSet):
     @extend_schema(
         summary="Create a new product",
         description="This endpoint allows you to create a new product. You need to provide the required fields.",
-        request=ProductSerializer,
-        responses={
-            201: ProductSerializer,
-        },
     )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
@@ -186,10 +166,6 @@ class ProductViewSet(viewsets.ModelViewSet):
     @extend_schema(
         summary="Retrieve a specific product",
         description="This endpoint returns the details of a specific product identified by its ID. It also increments the view count of the product.",
-        responses={
-            200: ProductDetailSerializer,
-            404: "Product not found",
-        },
     )
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -201,11 +177,6 @@ class ProductViewSet(viewsets.ModelViewSet):
     @extend_schema(
         summary="Update an existing product",
         description="This endpoint allows you to update an existing product identified by its ID. You only need to provide the fields you want to update.",
-        request=ProductSerializer,
-        responses={
-            200: ProductDetailSerializer,
-            404: "Product not found",
-        },
     )
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
@@ -213,10 +184,6 @@ class ProductViewSet(viewsets.ModelViewSet):
     @extend_schema(
         summary="Delete a product",
         description="This endpoint allows you to delete a product identified by its ID.",
-        responses={
-            204: "Product deleted successfully",
-            404: "Product not found",
-        },
     )
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
@@ -224,9 +191,6 @@ class ProductViewSet(viewsets.ModelViewSet):
     @extend_schema(
         summary="Retrieve popular products",
         description="This endpoint returns the top 30 most viewed products.",
-        responses={
-            200: ProductSerializer(many=True),
-        },
     )
     @action(detail=False, methods=["get"])
     def popular(self, request):
@@ -237,9 +201,6 @@ class ProductViewSet(viewsets.ModelViewSet):
     @extend_schema(
         summary="Retrieve latest arrival products",
         description="This endpoint returns the latest 30 products based on their creation date.",
-        responses={
-            200: ProductSerializer(many=True),
-        },
     )
     @action(detail=False, methods=["get"])
     def latest_arrival(self, request):

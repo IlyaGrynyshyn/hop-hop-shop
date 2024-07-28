@@ -17,10 +17,7 @@ class ProductImageSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = [
-            "id",
-            "name",
-        ]
+        fields = ["id", "name", "description"]
 
 
 class ProductAttributesSerializer(serializers.ModelSerializer):
@@ -50,6 +47,45 @@ class ProductSerializer(serializers.ModelSerializer):
         first_image = obj.product_images.first()
         return ProductImageSerializer(first_image).data if first_image else None
 
+
+class ProductDetailSerializer(serializers.ModelSerializer):
+    attributes = ProductAttributesSerializer(source="product_attributes")
+    category = CategorySerializer(read_only=True)
+    images = ProductImageSerializer(many=True, read_only=True, source="product_images")
+    slug = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = Product
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "price",
+            "SKU",
+            "description",
+            "category",
+            "attributes",
+            "images",
+        ]
+
+
+class ProductCreateUpdateSerializer(serializers.ModelSerializer):
+    attributes = ProductAttributesSerializer(source="product_attributes")
+    slug = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = Product
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "price",
+            "SKU",
+            "description",
+            "category",
+            "attributes",
+        ]
+
     def create(self, validated_data):
         product_attributes_data = validated_data.pop("product_attributes", None)
         product = Product.objects.create(**validated_data)
@@ -77,25 +113,3 @@ class ProductSerializer(serializers.ModelSerializer):
         if value <= 0:
             raise serializers.ValidationError("Price must be greater than 0.")
         return value
-
-
-class ProductDetailSerializer(serializers.ModelSerializer):
-    attributes = ProductAttributesSerializer(
-        read_only=True, source="product_attributes"
-    )
-    category = CategorySerializer(read_only=True)
-    images = ProductImageSerializer(many=True, read_only=True, source="product_images")
-
-    class Meta:
-        model = Product
-        fields = [
-            "id",
-            "name",
-            "slug",
-            "price",
-            "SKU",
-            "description",
-            "category",
-            "attributes",
-            "images",
-        ]
