@@ -28,7 +28,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete", "head", "options"]
 
     def get_serializer_class(self):
-        if self.action == "upload-image":
+        if self.action == "upload_image":
             return CategoryImageSerializer
         return CategorySerializer
 
