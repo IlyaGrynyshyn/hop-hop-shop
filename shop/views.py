@@ -123,11 +123,13 @@ class ProductViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete", "head", "options"]
 
     def get_serializer_class(self):
-        if self.action == "list":
-            return ProductSerializer
-        elif self.action == "create" or "partial_update":
+        if self.action == "retrieve":
+            return ProductDetailSerializer
+        elif self.action == "create":
             return ProductCreateUpdateSerializer
-        return ProductDetailSerializer
+        elif self.action == "partial_update":
+            return ProductCreateUpdateSerializer
+        return ProductSerializer
 
     @extend_schema(
         summary="Retrieve a list of products",
