@@ -8,6 +8,7 @@ from authentication.views import (
     ManageUserView,
     CustomTokenRefreshView,
     LoginView,
+    LogoutView,
 )
 
 app_name: str = "authentication"
@@ -17,4 +18,5 @@ urlpatterns = [
     path("token/verify/", TokenVerifyView.as_view(), name="token_verify"),
     path("registration/", CreateCustomerView.as_view(), name="create"),
     path("profile/", ManageUserView.as_view(), name="profile"),
+    path("logout/", LogoutView.as_view(), name="logout"),
 ]
