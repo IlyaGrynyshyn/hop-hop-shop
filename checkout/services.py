@@ -20,8 +20,11 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 class OrderData:
-    def __init__(self, order=None, card_information=None, total_price=0):
+    def __init__(
+        self, order=None, order_items=None, card_information=None, total_price=0
+    ):
         self.order = order
+        self.order_items = order_items
         self.card_information = card_information
         self.total_price = total_price
 
@@ -36,21 +39,24 @@ class OrderService:
             raise CartEmptyException
         card_information = validated_data.pop("card_information", None)
         order = self._create_order_instance(validated_data)
-        self._create_order_items(order)
+        order_items = self._get_cart_items()
 
         total_price = self.cart_service.get_total_price()
-        return OrderData(order, card_information, total_price)
+        return OrderData(order, order_items, card_information, total_price)
 
-    def _is_cart_not_empty(self) -> None:
+    def _is_cart_not_empty(self) -> bool:
         return self.cart_service.get_total_price() > 0
 
     def _create_order_instance(self, validated_data: dict) -> Order:
         return Order.objects.create(**validated_data)
 
-    def _create_order_items(self, order: Order) -> None:
+    def _create_order_items(self, order: Order) -> list:
         items_data = self._get_cart_items()
+        order_items = []
         for item_data in items_data:
-            OrderItem.objects.create(order=order, **item_data)
+            order_item = OrderItem.objects.create(order=order, **item_data)
+            order_items.append(order_item)
+        return order_items
 
     def _get_cart_items(self):
         return [

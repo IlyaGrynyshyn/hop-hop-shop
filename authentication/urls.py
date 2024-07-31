@@ -1,22 +1,20 @@
 from django.urls import path
-from rest_framework_simplejwt.views import (
-    TokenVerifyView,
-)
 
 from authentication.views import (
     CreateCustomerView,
-    ManageUserView,
+    CustomerProfileView,
     CustomTokenRefreshView,
     LoginView,
     LogoutView,
+    CustomersListView,
 )
 
 app_name: str = "authentication"
 urlpatterns = [
     path("login/", LoginView.as_view(), name="login"),
     path("token/refresh/", CustomTokenRefreshView.as_view(), name="token_refresh"),
-    path("token/verify/", TokenVerifyView.as_view(), name="token_verify"),
     path("registration/", CreateCustomerView.as_view(), name="create"),
-    path("profile/", ManageUserView.as_view(), name="profile"),
     path("logout/", LogoutView.as_view(), name="logout"),
+    path("profile/", CustomerProfileView.as_view(), name="profile"),
+    path("customers/", CustomersListView.as_view(), name="customers"),
 ]
