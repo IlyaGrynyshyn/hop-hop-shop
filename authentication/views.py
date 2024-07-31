@@ -156,3 +156,21 @@ class ChangePasswordViewSet(generics.UpdateAPIView):
     queryset = get_user_model()
     serializer_class = ChangePasswordSerializer
     permission_classes = [IsAuthenticated]
+
+
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            refresh_token = request.data.get("refresh_token")
+            if refresh_token:
+                token = RefreshToken(refresh_token)
+                token.blacklist()
+            response = Response(
+                {"message": "Logout successful"}, status=status.HTTP_204_NO_CONTENT
+            )
+            response.delete_cookie("refresh_token")
+            return response
+        except Exception:
+            raise ValueError
