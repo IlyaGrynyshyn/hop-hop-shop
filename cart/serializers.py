@@ -11,7 +11,7 @@ class ProductItemSerializer(ProductSerializer):
         model = Product
         fields = ["id", "name", "category", "slug", "price", "images"]
 
-    def get_images(self, obj):
+    def get_images(self, obj) -> ProductImageSerializer:
         first_image = obj.product_images.first()
         return ProductImageSerializer(first_image).data if first_image else None
 
@@ -34,7 +34,13 @@ class CartSerializer(serializers.ModelSerializer):
         fields = ["id", "user", "items", "total_price", "item_count"]
 
 
-class CouponSerializer(serializers.ModelSerializer):
+class UseCouponSerializer(serializers.ModelSerializer):
     class Meta:
         model = Coupon
         fields = ["code"]
+
+
+class CouponSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Coupon
+        fields = "__all__"
