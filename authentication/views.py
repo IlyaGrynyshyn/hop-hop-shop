@@ -158,6 +158,7 @@ class ChangePasswordViewSet(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated]
 
 
+@extend_schema(tags=["authentication"])
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
 

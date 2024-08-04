@@ -215,8 +215,8 @@ DRF_STANDARDIZED_ERRORS = {
 CSRF_COOKIE_HTTPONLY = True
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=1),  # TODO: in production set 30 minutes
-    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=5),  # TODO: in production set 7 days
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "AUTH_COOKIE": "refresh_token",
