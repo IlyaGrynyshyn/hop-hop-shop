@@ -13,7 +13,7 @@ def product_image_file_path(instance, filename):
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=100, db_index=True)
+    name = models.CharField(max_length=100, db_index=True, unique=True)
     slug = models.SlugField(max_length=255, unique=True)
     description = models.TextField(null=True, blank=True)
     image = models.ImageField(

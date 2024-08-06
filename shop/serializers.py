@@ -15,6 +15,8 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    image = ProductImageSerializer(read_only=True)
+
     class Meta:
         model = Category
         fields = [
@@ -54,7 +56,9 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class ProductDetailSerializer(serializers.ModelSerializer):
-    attributes = ProductAttributesSerializer(source="product_attributes")
+    attributes = ProductAttributesSerializer(
+        source="product_attributes", required=False
+    )
     category = CategorySerializer(read_only=True)
     images = ProductImageSerializer(many=True, read_only=True, source="product_images")
     slug = serializers.CharField(read_only=True)
