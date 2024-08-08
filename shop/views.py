@@ -24,7 +24,6 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     pagination_class = Pagination
     permission_classes = (IsAdminUserOrReadOnly,)
-    http_method_names = ["get", "post", "patch", "delete", "head", "options"]
 
     def get_serializer_class(self):
         if self.action == "upload_image":
