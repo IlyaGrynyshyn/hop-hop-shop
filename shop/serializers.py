@@ -15,8 +15,6 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    image = ProductImageSerializer(read_only=True)
-
     class Meta:
         model = Category
         fields = [
@@ -31,6 +29,30 @@ class ProductAttributesSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductAttributes
         fields = ["brand", "material", "style", "size"]
+
+
+class ProductImageUploadSerializer(serializers.Serializer):
+    uploaded_images = serializers.ListField(
+        child=serializers.ImageField(
+            max_length=1000000, allow_empty_file=False, use_url=False
+        ),
+        write_only=True,
+    )
+
+    def create(self, validated_data):
+        images = validated_data["uploaded_images"]
+        product = self.context["product"]
+        product_images = [
+            ProductImage(product=product, image=image) for image in images
+        ]
+        ProductImage.objects.bulk_create(product_images)
+        return product_images
+
+    class Meta:
+        model = ProductImage
+        fields = [
+            "image",
+        ]
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -79,7 +101,9 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
 
 class ProductCreateUpdateSerializer(serializers.ModelSerializer):
-    attributes = ProductAttributesSerializer(source="product_attributes")
+    attributes = ProductAttributesSerializer(
+        source="product_attributes", required=False
+    )
     slug = serializers.CharField(read_only=True)
 
     class Meta:

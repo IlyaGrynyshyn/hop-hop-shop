@@ -14,6 +14,7 @@ from shop.serializers import (
     ProductDetailSerializer,
     CategoryImageSerializer,
     ProductCreateUpdateSerializer,
+    ProductImageUploadSerializer,
 )
 from utils.pagination import Pagination
 from utils.permissions import IsAdminUserOrReadOnly
@@ -127,6 +128,8 @@ class ProductViewSet(viewsets.ModelViewSet):
             return ProductCreateUpdateSerializer
         elif self.action == "partial_update":
             return ProductCreateUpdateSerializer
+        elif self.action == "upload_images":
+            return ProductImageUploadSerializer
         return ProductSerializer
 
     @extend_schema(
@@ -207,3 +210,21 @@ class ProductViewSet(viewsets.ModelViewSet):
         latest_arrival_products = self.queryset.order_by("-pk")[:30]
         serializer = self.get_serializer(latest_arrival_products, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(
+        methods=["POST"],
+        detail=True,
+        url_path="upload-images",
+        permission_classes=[IsAdminUser],
+    )
+    def upload_images(self, request, pk=None):
+        product = self.get_object()
+        serializer = ProductImageUploadSerializer(
+            data=request.data, context={"product": product}
+        )
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"status": "images uploaded"}, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
