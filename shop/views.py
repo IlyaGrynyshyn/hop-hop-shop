@@ -71,7 +71,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
         description="Endpoint for uploading image for category",
     )
     @action(
-        methods=["POST"],
+        methods=["POST", "PATCH"],
         detail=True,
         url_path="upload-image",
         permission_classes=[IsAdminUser],
@@ -212,7 +212,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(
-        methods=["POST"],
+        methods=["POST", "PATCH"],
         detail=True,
         url_path="upload-images",
         permission_classes=[IsAdminUser],

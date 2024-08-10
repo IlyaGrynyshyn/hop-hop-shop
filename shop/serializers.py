@@ -7,6 +7,13 @@ class CategoryImageSerializer(serializers.ModelSerializer):
         model = Category
         fields = ("image",)
 
+    def update(self, instance, validated_data):
+        image = validated_data.get("image", None)
+        if image is not None:
+            instance.image = image
+            instance.save()
+        return instance
+
 
 class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:
