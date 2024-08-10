@@ -55,6 +55,15 @@ class ProductImageUploadSerializer(serializers.Serializer):
         ProductImage.objects.bulk_create(product_images)
         return product_images
 
+    def update(self, instance, validated_data):
+        instance.product_images.all().delete()
+        images = validated_data["uploaded_images"]
+        product_images = [
+            ProductImage(product=instance, image=image) for image in images
+        ]
+        ProductImage.objects.bulk_create(product_images)
+        return product_images
+
     class Meta:
         model = ProductImage
         fields = [
