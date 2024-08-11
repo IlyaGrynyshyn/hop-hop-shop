@@ -64,7 +64,11 @@ class CategoryViewSet(viewsets.ModelViewSet):
         description="This endpoint allows you to delete a category identified by its ID.",
     )
     def destroy(self, request, *args, **kwargs):
-        return super().destroy(request, *args, **kwargs)
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(
+            {"detail": "Category deleted successfully."}, status=status.HTTP_200_OK
+        )
 
     @extend_schema(
         summary="Upload image for category",
@@ -189,7 +193,11 @@ class ProductViewSet(viewsets.ModelViewSet):
         description="This endpoint allows you to delete a product identified by its ID.",
     )
     def destroy(self, request, *args, **kwargs):
-        return super().destroy(request, *args, **kwargs)
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(
+            {"detail": "Product deleted successfully."}, status=status.HTTP_200_OK
+        )
 
     @extend_schema(
         summary="Retrieve popular products",
