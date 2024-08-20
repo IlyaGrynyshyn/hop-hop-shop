@@ -3,12 +3,6 @@
 from django.db import migrations, models
 
 
-def load_fixture_data(apps, schema_editor):
-    from django.core.management import call_command
-
-    call_command("loaddata", "initial_data.json", app_label="shop")
-
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -21,5 +15,4 @@ class Migration(migrations.Migration):
             name="description",
             field=models.TextField(blank=True, null=True),
         ),
-        migrations.RunPython(load_fixture_data),
     ]
