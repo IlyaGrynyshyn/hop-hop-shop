@@ -8,10 +8,10 @@ class ShopConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "shop"
 
-    # def ready(self):
-    #     post_migrate.connect(load_fixtures, sender=self)
+    def ready(self):
+        post_migrate.connect(load_fixtures, sender=self)
 
 
-# def load_fixtures(sender, **kwargs):
-#     if settings.DEBUG:
-#         call_command("loaddata", "initial_data.json")
+def load_fixtures(sender, **kwargs):
+    if settings.DEBUG:
+        call_command("loaddata", "initial_data.json")
