@@ -15,8 +15,10 @@ class MyExceptionFormatter(ExceptionFormatter):
         else:
             error_message = error.detail
         return {
-            "success": False,
-            "type": error_response.type,
-            "code": error.code,
-            "error": error_message,
+            "data": {
+                "success": False,
+                "type": error_response.type,
+                "code": error.code,
+                "error": error_message,
+            }
         }
