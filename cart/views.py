@@ -17,6 +17,7 @@ def cart_session_response(cart_service):
     total_price = cart_service.get_total_price()
     total_items = cart_service.get_total_item()
     coupon_is_used = cart_service.coupon_is_used()
+    session_id = cart_service.get_session_id()
 
     return {
         "products": cart_items,
@@ -24,6 +25,7 @@ def cart_session_response(cart_service):
         "subtotal_price": total_price,
         "total_price": total_price,
         "coupon_is_used": coupon_is_used,
+        "sessionid": session_id
     }
 
 
