@@ -40,6 +40,7 @@ class CheckoutView(generics.CreateAPIView):
                     {
                         "order": serializer.data,
                         "message": "Order created and payment successful",
+                        "sessionid": request.session.get("session_key", None),
                     },
                     status=status.HTTP_201_CREATED,
                 )
