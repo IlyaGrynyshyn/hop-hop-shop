@@ -89,4 +89,8 @@ class OrderListView(viewsets.ModelViewSet):
         description="This endpoint allows you to delete an existing order.",
     )
     def destroy(self, request, *args, **kwargs):
-        return super().destroy(request, *args, **kwargs)
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(
+            {"detail": "Order deleted successfully."}, status=status.HTTP_200_OK
+        )

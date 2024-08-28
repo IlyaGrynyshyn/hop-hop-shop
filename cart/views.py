@@ -175,4 +175,8 @@ class CouponView(viewsets.ModelViewSet):
         description="This endpoint allows you to delete a coupon identified by its ID.",
     )
     def destroy(self, request, *args, **kwargs):
-        return super().destroy(request, *args, **kwargs)
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(
+            {"detail": "Coupon deleted successfully."}, status=status.HTTP_200_OK
+        )
