@@ -164,7 +164,6 @@ class LogoutView(APIView):
 
     def post(self, request):
         try:
-            print(request.data)
             refresh_token = request.data.get("refresh_token")
             if refresh_token:
                 token = RefreshToken(refresh_token)
