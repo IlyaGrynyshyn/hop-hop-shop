@@ -44,6 +44,41 @@ class CustomerSerializer(serializers.ModelSerializer):
         return user
 
 
+class CustomerAdminSerializer(serializers.ModelSerializer):
+    is_active = serializers.BooleanField()
+    is_staff = serializers.BooleanField()
+
+    class Meta:
+        model = get_user_model()
+        fields = (
+            "id",
+            "email",
+            "first_name",
+            "last_name",
+            "phone_number",
+            "is_staff",
+            "is_active",
+        )
+        read_only_fields = ["id", "password"]
+
+    def update(self, instance, validated_data):
+        """Update a user, set the role or deactivate their account"""
+        is_staff = validated_data.pop("is_staff", None)
+        is_active = validated_data.pop("is_active", None)
+
+        user = super().update(instance, validated_data)
+
+        if is_staff is not None:
+            user.is_staff = is_staff
+        if is_active is not None:
+            user.is_active = is_active
+
+        user.save()
+
+        return user
+
+
+
 class ChangePasswordSerializer(serializers.ModelSerializer):
     old_password = serializers.CharField(write_only=True, required=True)
     password = serializers.CharField(write_only=True, required=True)

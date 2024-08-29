@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 from drf_spectacular.utils import extend_schema
-from rest_framework import generics
+from rest_framework import generics, viewsets
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
@@ -14,7 +14,7 @@ from authentication.models import Customer
 from authentication.serializers import (
     CustomerSerializer,
     ChangePasswordSerializer,
-    LoginSerializer,
+    LoginSerializer, CustomerAdminSerializer,
 )
 from utils.custom_exceptions import InvalidCredentialsError
 from utils.pagination import Pagination
@@ -128,15 +128,39 @@ class CustomTokenRefreshView(TokenRefreshView):
 
 
 @extend_schema(tags=["customer data"], summary="Get all customers")
-class CustomersListView(generics.ListAPIView):
+class CustomersListView(viewsets.ModelViewSet):
     """
-    API view to list all customers.
+    API viewset to list all customers, retrieve one customer and update their personal information/roles/set them as inactive.
     """
 
-    serializer_class = CustomerSerializer
+    serializer_class = CustomerAdminSerializer
     queryset = Customer.objects.all()
     pagination_class = Pagination
     permission_classes = (IsAdminUser,)
+
+    http_method_names = ["get", "patch"]
+
+    @extend_schema(
+        summary="Retrieve a list of customers",
+        description="This endpoint returns a list of all customers.",
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Retrieve a specific customer",
+        description="This endpoint returns the details of a specific customer identified by its ID.",
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Update an existing customer",
+        description="This endpoint allows you to update an existing customer identified by its ID. You only need to "
+                    "provide the fields you want to update.",
+    )
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
 
 
 @extend_schema(tags=["customer data"], summary="Get information about your profile")

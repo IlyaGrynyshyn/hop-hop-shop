@@ -1,4 +1,5 @@
 from django.urls import path
+from rest_framework import routers
 
 from authentication.views import (
     CreateCustomerView,
@@ -9,6 +10,9 @@ from authentication.views import (
     CustomersListView,
 )
 
+router = routers.DefaultRouter()
+router.register(r"customers", CustomersListView, basename="customers")
+
 app_name: str = "authentication"
 urlpatterns = [
     path("login/", LoginView.as_view(), name="login"),
@@ -16,5 +20,6 @@ urlpatterns = [
     path("registration/", CreateCustomerView.as_view(), name="create"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("profile/", CustomerProfileView.as_view(), name="profile"),
-    path("customers/", CustomersListView.as_view(), name="customers"),
 ]
+
+urlpatterns += router.urls
