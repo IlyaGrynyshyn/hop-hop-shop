@@ -10,6 +10,7 @@ from cart.services import CartService
 from utils.custom_exceptions import (
     ProductNotExistException,
 )
+from utils.pagination import Pagination
 
 
 def cart_session_response(cart_service):
@@ -139,7 +140,7 @@ class RemoveCouponView(APIView):
 class CouponView(viewsets.ModelViewSet):
     queryset = Coupon.objects.all()
     serializer_class = CouponSerializer
-
+    pagination_class = Pagination
     http_method_names = ["get", "post", "patch", "delete"]
 
     @extend_schema(
