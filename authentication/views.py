@@ -49,19 +49,19 @@ class CreateCustomerView(generics.CreateAPIView):
         if user is not None:
             refresh = RefreshToken.for_user(user)
             response = Response(status=status.HTTP_201_CREATED)
-            response.set_cookie(
-                key=settings.SIMPLE_JWT["AUTH_COOKIE"],
-                value=refresh,
-                expires=settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"],
-                secure=settings.SIMPLE_JWT["AUTH_COOKIE_SECURE"],
-                httponly=True,
-                samesite=settings.SIMPLE_JWT["AUTH_COOKIE_SAMESITE"],
-            )
+
             response.data = {
                 "user": CustomerSerializer(user).data,
-                "access": str(refresh.access_token),
-                "refresh": str(refresh),
+                "access_token": {
+                    "value": str(refresh.access_token),
+                    "expires": settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"].total_seconds(),
+                },
+                "refresh_token": {
+                    "value": str(refresh),
+                    "expires": settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds(),
+                },
             }
+
             return response
 
 
@@ -99,17 +99,17 @@ class LoginView(APIView):
         if user is not None:
             refresh = RefreshToken.for_user(user)
             response = Response()
-            response.set_cookie(
-                key=settings.SIMPLE_JWT["AUTH_COOKIE"],
-                value=refresh,
-                expires=settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"],
-                secure=settings.SIMPLE_JWT["AUTH_COOKIE_SECURE"],
-                httponly=True,
-                samesite=settings.SIMPLE_JWT["AUTH_COOKIE_SAMESITE"],
-            )
+
             response.data = {
                 "user": CustomerSerializer(user).data,
-                "access": str(refresh.access_token),
+                "access_token": {
+                    "value": str(refresh.access_token),
+                    "expires": settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"].total_seconds(),
+                },
+                "refresh_token": {
+                    "value": str(refresh),
+                    "expires": settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds(),
+                },
             }
             return response
         raise InvalidCredentialsError
