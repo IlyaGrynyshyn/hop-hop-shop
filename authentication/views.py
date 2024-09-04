@@ -1,6 +1,10 @@
+import os
+
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema
 from rest_framework import generics, viewsets
 from rest_framework import status
@@ -10,11 +14,12 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from authentication.models import Customer
+from authentication.models import Customer, PasswordReset
 from authentication.serializers import (
     CustomerSerializer,
     ChangePasswordSerializer,
-    LoginSerializer, CustomerAdminSerializer,
+    LoginSerializer, CustomerAdminSerializer, PasswordResetRequestSerializer,
+    ResetPasswordSerializer,
 )
 from utils.custom_exceptions import InvalidCredentialsError
 from utils.pagination import Pagination
@@ -174,6 +179,29 @@ class CustomerProfileView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+class ResetPasswordView(generics.GenericAPIView):
+    queryset = get_user_model()
+    serializer_class = ResetPasswordSerializer
+
+class PasswordResetRequestView(APIView):
+    def post(self, request):
+        email = request.data.get("email")
+        user = get_object_or_404(get_user_model(), email=email)
+
+        if user:
+            token_generator = PasswordResetTokenGenerator()
+            token = token_generator.make_token(user)
+            reset = PasswordReset(user=user, token=token)
+            reset.save()
+
+            reset_url = f"{os.environ['PASSWORD_RESET_BASE_URL']}&token={token}&email={email}"
+
+            # send email block
+
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 class ChangePasswordViewSet(generics.UpdateAPIView):

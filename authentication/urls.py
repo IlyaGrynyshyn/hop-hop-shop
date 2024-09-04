@@ -7,7 +7,7 @@ from authentication.views import (
     CustomTokenRefreshView,
     LoginView,
     LogoutView,
-    CustomersListView,
+    CustomersListView, PasswordResetRequestView,
 )
 
 router = routers.DefaultRouter()
@@ -20,6 +20,7 @@ urlpatterns = [
     path("registration/", CreateCustomerView.as_view(), name="create"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("profile/", CustomerProfileView.as_view(), name="profile"),
+    path("reset-password/", PasswordResetRequestView.as_view(), name="reset_password"),
 ]
 
 urlpatterns += router.urls

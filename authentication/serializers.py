@@ -77,6 +77,28 @@ class CustomerAdminSerializer(serializers.ModelSerializer):
 
         return user
 
+class ResetPasswordSerializer(serializers.Serializer):
+    token = serializers.CharField(write_only=True, required=True)
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(write_only=True, required=True)
+    password2 = serializers.CharField(write_only=True, required=True)
+
+    def validate(self, attrs):
+        """
+        Validate that the password and password2 match
+        :param attrs:
+        :return:
+        """
+        user = get_user_model().objects.get(attrs['email'])
+        valid_token = user.reset_password.token == attrs["token"]
+        if not user:
+            raise serializers.ValidationError({"email": "There is no user with provided email"})
+        if not valid_token:
+            raise serializers.ValidationError({"token": "Invalid secret token value"})
+        if attrs["password"] != attrs["password2"]:
+            raise serializers.ValidationError({"password": "Passwords do not match"})
+        
+        return attrs
 
 
 class ChangePasswordSerializer(serializers.ModelSerializer):
