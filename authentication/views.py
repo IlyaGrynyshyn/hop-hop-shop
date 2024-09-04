@@ -18,8 +18,8 @@ from authentication.models import Customer, PasswordReset
 from authentication.serializers import (
     CustomerSerializer,
     ChangePasswordSerializer,
-    LoginSerializer, CustomerAdminSerializer, PasswordResetRequestSerializer,
-    ResetPasswordSerializer,
+    LoginSerializer, CustomerAdminSerializer,
+    ResetPasswordSerializer, ResetPasswordRequestSerializer,
 )
 from utils.custom_exceptions import InvalidCredentialsError
 from utils.pagination import Pagination
@@ -180,28 +180,32 @@ class CustomerProfileView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         return self.request.user
 
-class ResetPasswordView(generics.GenericAPIView):
-    queryset = get_user_model()
+
+class ResetPasswordView(APIView):
     serializer_class = ResetPasswordSerializer
 
-class PasswordResetRequestView(APIView):
-    def post(self, request):
-        email = request.data.get("email")
-        user = get_object_or_404(get_user_model(), email=email)
-
-        if user:
-            token_generator = PasswordResetTokenGenerator()
-            token = token_generator.make_token(user)
-            reset = PasswordReset(user=user, token=token)
-            reset.save()
-
-            reset_url = f"{os.environ['PASSWORD_RESET_BASE_URL']}&token={token}&email={email}"
-
-            # send email block
+    def post(self, request, *args, **kwargs):
+        reset_password_serializer = ResetPasswordSerializer(data=request.data)
+        if reset_password_serializer.is_valid():
+            reset_password_serializer.save()
 
             return Response(status=status.HTTP_200_OK)
-        else:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class PasswordResetRequestView(APIView):
+    serializer_class = ResetPasswordRequestSerializer
+
+    def post(self, request, *args, **kwargs):
+        password_reset_request_serializer = ResetPasswordRequestSerializer(data=request.data)
+
+        if password_reset_request_serializer.is_valid():
+            password_reset_request_serializer.save()
+
+            return Response("Recovery email was successfully sent", status=status.HTTP_200_OK)
+
+        return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
 
 class ChangePasswordViewSet(generics.UpdateAPIView):

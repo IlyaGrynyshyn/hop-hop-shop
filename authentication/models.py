@@ -22,14 +22,14 @@ class Customer(AbstractUser):
 
 
 class PasswordReset(models.Model):
-    token = models.CharField(max_length=100)
+    token = models.CharField(max_length=100, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    expires_at = models.DateTimeField()
+    expires_at = models.DateTimeField(null=True, blank=True)
     user = models.OneToOneField(Customer, on_delete=models.CASCADE, primary_key=True)
 
     def __str__(self):
         return self.token
 
     def save(self, *args, **kwargs):
-        self.expires_at = self.created_at + timedelta(days=1)
         super().save(*args, **kwargs)
+        self.expires_at = self.created_at + timedelta(days=1)

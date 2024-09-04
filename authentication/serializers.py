@@ -1,5 +1,12 @@
+import os
+
 from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils import timezone
+
 from rest_framework import serializers
+
+from authentication.models import PasswordReset
 
 
 class LoginSerializer(serializers.Serializer):
@@ -77,28 +84,83 @@ class CustomerAdminSerializer(serializers.ModelSerializer):
 
         return user
 
-class ResetPasswordSerializer(serializers.Serializer):
+
+class ResetPasswordRequestSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField()
+
+    class Meta:
+        model = PasswordReset
+        fields = ('email',)
+
+    def validate(self, attrs):
+        user = get_user_model().objects.filter(email__iexact=attrs["email"]).first()
+        if not user:
+            raise serializers.ValidationError({"email": "There is no user with provided email"})
+
+        token_generator = PasswordResetTokenGenerator()
+        token = token_generator.make_token(user)
+
+        attrs['token'] = token
+        attrs['user_id'] = user.id
+
+        return attrs
+
+    def create(self, validated_data):
+        token = validated_data.pop('token', None)
+        user_id = validated_data.pop('user_id', None)
+
+        reset_password = PasswordReset.objects.filter(user_id=user_id).first()
+
+        if reset_password:
+            reset_password.delete()
+
+        instance = PasswordReset(user_id=user_id, token=token)
+        instance.save()
+
+        reset_url = f"{os.environ['PASSWORD_RESET_BASE_URL']}&token={token}&id={user_id}"
+
+        # send email
+
+        return instance
+
+
+
+
+class ResetPasswordSerializer(serializers.ModelSerializer):
     token = serializers.CharField(write_only=True, required=True)
     email = serializers.EmailField(required=True)
     password = serializers.CharField(write_only=True, required=True)
     password2 = serializers.CharField(write_only=True, required=True)
 
+    class Meta:
+        model = get_user_model()
+        fields = ("token", "email", "password", "password2")
+
     def validate(self, attrs):
         """
-        Validate that the password and password2 match
         :param attrs:
         :return:
         """
         user = get_user_model().objects.get(attrs['email'])
         valid_token = user.reset_password.token == attrs["token"]
+        is_expired = user.reset_password.expires_at < timezone.now()
         if not user:
             raise serializers.ValidationError({"email": "There is no user with provided email"})
+        if is_expired:
+            raise serializers.ValidationError({"token_expired": "Provided token is expired"})
         if not valid_token:
             raise serializers.ValidationError({"token": "Invalid secret token value"})
         if attrs["password"] != attrs["password2"]:
             raise serializers.ValidationError({"password": "Passwords do not match"})
-        
+
         return attrs
+
+    def save(self, **kwargs):
+        user = get_user_model().objects.get(self.validated_data["email"])
+        user.set_password(self.validated_data["password"])
+        user.save()
+
+        super().save(**kwargs)
 
 
 class ChangePasswordSerializer(serializers.ModelSerializer):

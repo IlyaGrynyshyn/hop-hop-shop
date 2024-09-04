@@ -7,7 +7,7 @@ from authentication.views import (
     CustomTokenRefreshView,
     LoginView,
     LogoutView,
-    CustomersListView, PasswordResetRequestView,
+    CustomersListView, PasswordResetRequestView, ResetPasswordView,
 )
 
 router = routers.DefaultRouter()
@@ -20,7 +20,8 @@ urlpatterns = [
     path("registration/", CreateCustomerView.as_view(), name="create"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("profile/", CustomerProfileView.as_view(), name="profile"),
-    path("reset-password/", PasswordResetRequestView.as_view(), name="reset_password"),
+    path("reset-password/request/", PasswordResetRequestView.as_view(), name="request_reset_password"),
+    path("reset-password/", ResetPasswordView.as_view(), name="reset_password"),
 ]
 
 urlpatterns += router.urls
