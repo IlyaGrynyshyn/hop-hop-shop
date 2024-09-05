@@ -1,10 +1,6 @@
-import os
-
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema
 from rest_framework import generics, viewsets
 from rest_framework import status
@@ -14,7 +10,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from authentication.models import Customer, PasswordReset
+from authentication.models import Customer
 from authentication.serializers import (
     CustomerSerializer,
     ChangePasswordSerializer,
