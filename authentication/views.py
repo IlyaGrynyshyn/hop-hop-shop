@@ -185,27 +185,23 @@ class ResetPasswordView(APIView):
     serializer_class = ResetPasswordSerializer
 
     def post(self, request, *args, **kwargs):
-        reset_password_serializer = ResetPasswordSerializer(data=request.data)
-        if reset_password_serializer.is_valid():
+        reset_password_serializer = self.serializer_class(data=request.data)
+        if reset_password_serializer.is_valid(raise_exception=True):
             reset_password_serializer.save()
 
-            return Response(status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
-
+            return Response("Password was successfully changed", status=status.HTTP_200_OK)
 
 
 class PasswordResetRequestView(APIView):
     serializer_class = ResetPasswordRequestSerializer
 
     def post(self, request, *args, **kwargs):
-        password_reset_request_serializer = ResetPasswordRequestSerializer(data=request.data)
+        password_reset_request_serializer = self.serializer_class(data=request.data)
 
-        if password_reset_request_serializer.is_valid():
+        if password_reset_request_serializer.is_valid(raise_exception=True):
             password_reset_request_serializer.save()
 
             return Response("Recovery email was successfully sent", status=status.HTTP_200_OK)
-
-        return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
 
 class ChangePasswordViewSet(generics.UpdateAPIView):

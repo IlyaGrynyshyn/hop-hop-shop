@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from datetime import timedelta
@@ -31,5 +32,6 @@ class PasswordReset(models.Model):
         return self.token
 
     def save(self, *args, **kwargs):
+        if not self.expires_at:
+            self.expires_at = timezone.now() + timedelta(days=1)
         super().save(*args, **kwargs)
-        self.expires_at = self.created_at + timedelta(days=1)
