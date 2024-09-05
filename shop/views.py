@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
 from shop.filters import ProductFilter
-from shop.models import Category, Product
+from shop.models import Category, Product, ProductImage
 from shop.serializers import (
     CategorySerializer,
     ProductSerializer,
@@ -118,7 +118,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 @extend_schema(tags=["products"])
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.select_related("category").all()
-    permission_classes = (IsAdminUserOrReadOnly,)
+    # permission_classes = (IsAdminUserOrReadOnly,)
     pagination_class = Pagination
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_class = ProductFilter
@@ -235,4 +235,51 @@ class ProductViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response({"status": "images uploaded"}, status=status.HTTP_200_OK)
 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @extend_schema(
+        summary="Delete a product image",
+        description="This endpoint allows you to delete a specific image of a product identified by its image ID.",
+    )
+    @action(
+        detail=True, methods=["delete"], url_path="delete-image/(?P<image_id>[^/.]+)"
+    )
+    def delete_image(self, request, pk=None, image_id=None):
+        product = self.get_object()
+        try:
+            image = product.product_images.get(id=image_id)
+            image.delete()
+            return Response(
+                {"detail": "Image deleted successfully."}, status=status.HTTP_200_OK
+            )
+        except ProductImage.DoesNotExist:
+            return Response(
+                {"detail": "Image not found."}, status=status.HTTP_404_NOT_FOUND
+            )
+
+    @extend_schema(
+        summary="Update a product image",
+        description="This endpoint allows you to update a specific image of a product identified by its image ID.",
+    )
+    @action(
+        detail=True, methods=["patch"], url_path="update-image/(?P<image_id>[^/.]+)"
+    )
+    def update_image(self, request, pk=None, image_id=None):
+        product = self.get_object()
+        try:
+            image = product.product_images.get(id=image_id)
+        except ProductImage.DoesNotExist:
+            return Response(
+                {"detail": "Image not found."}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = ProductImageUploadSerializer(
+            image, data=request.data, partial=True
+        )
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"detail": "Image updated successfully."}, status=status.HTTP_200_OK
+            )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
