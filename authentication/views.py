@@ -15,6 +15,7 @@ from authentication.serializers import (
     CustomerSerializer,
     ChangePasswordSerializer,
     LoginSerializer, CustomerAdminSerializer,
+    ResetPasswordSerializer, ResetPasswordRequestSerializer,
 )
 from utils.custom_exceptions import InvalidCredentialsError
 from utils.pagination import Pagination
@@ -174,6 +175,29 @@ class CustomerProfileView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class ResetPasswordView(APIView):
+    serializer_class = ResetPasswordSerializer
+
+    def post(self, request, *args, **kwargs):
+        reset_password_serializer = self.serializer_class(data=request.data)
+        if reset_password_serializer.is_valid(raise_exception=True):
+            reset_password_serializer.save()
+
+            return Response("Password was successfully changed", status=status.HTTP_200_OK)
+
+
+class PasswordResetRequestView(APIView):
+    serializer_class = ResetPasswordRequestSerializer
+
+    def post(self, request, *args, **kwargs):
+        password_reset_request_serializer = self.serializer_class(data=request.data)
+
+        if password_reset_request_serializer.is_valid(raise_exception=True):
+            password_reset_request_serializer.save()
+
+            return Response("Recovery email was successfully sent", status=status.HTTP_200_OK)
 
 
 class ChangePasswordViewSet(generics.UpdateAPIView):
