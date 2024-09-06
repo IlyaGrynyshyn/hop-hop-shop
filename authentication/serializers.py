@@ -1,14 +1,29 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
+from authentication.models import CustomerAddress
+from checkout.serializers import OrderSerializer
+
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.CharField()
     password = serializers.CharField()
 
 
+class CustomerAddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomerAddress
+        fields = (
+            'shipping_country',
+            'shipping_city',
+            'shipping_address',
+            'shipping_postcode'
+        )
+
+
 class CustomerSerializer(serializers.ModelSerializer):
     user_role = serializers.SerializerMethodField()
+    shipping_info = CustomerAddressSerializer(allow_null=True, required=False)
 
     def get_user_role(self, obj):
         if obj.is_superuser:
@@ -26,6 +41,7 @@ class CustomerSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "phone_number",
+            "shipping_info",
             "user_role",
         )
         read_only_fields = ["id", "user_role"]
@@ -35,9 +51,14 @@ class CustomerSerializer(serializers.ModelSerializer):
         return get_user_model().objects.create_user(**validated_data)
 
     def update(self, instance, validated_data):
-        """Update a user, set the password correctly and return it"""
+        shipping_info = validated_data.pop('shipping_info', None)
         password = validated_data.pop("password", None)
+
         user = super().update(instance, validated_data)
+
+        if shipping_info:
+            CustomerAddress.objects.update_or_create(customer=user, defaults=shipping_info)
+
         if password:
             user.set_password(password)
             user.save()
@@ -56,11 +77,20 @@ class CustomerAdminSerializer(CustomerSerializer):
             "first_name",
             "last_name",
             "phone_number",
+            "shipping_info",
             "is_staff",
             "user_role",
             "is_active",
         )
         read_only_fields = ["id", "password"]
+
+    def create(self, validated_data):
+        email = validated_data.get("email", None)
+        user = get_user_model().objects.filter(email=email).first()
+
+        if not user:
+            user = get_user_model().objects.create_user(**validated_data)
+        return user
 
     def update(self, instance, validated_data):
         """Update a user, set the role or deactivate their account"""
@@ -77,7 +107,6 @@ class CustomerAdminSerializer(CustomerSerializer):
         user.save()
 
         return user
-
 
 
 class ChangePasswordSerializer(serializers.ModelSerializer):
