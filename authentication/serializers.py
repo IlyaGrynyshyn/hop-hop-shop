@@ -44,7 +44,7 @@ class CustomerSerializer(serializers.ModelSerializer):
         return user
 
 
-class CustomerAdminSerializer(serializers.ModelSerializer):
+class CustomerAdminSerializer(CustomerSerializer):
     is_active = serializers.BooleanField()
     is_staff = serializers.BooleanField()
 
@@ -57,6 +57,7 @@ class CustomerAdminSerializer(serializers.ModelSerializer):
             "last_name",
             "phone_number",
             "is_staff",
+            "user_role",
             "is_active",
         )
         read_only_fields = ["id", "password"]
