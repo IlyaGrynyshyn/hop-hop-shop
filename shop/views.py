@@ -118,7 +118,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 @extend_schema(tags=["products"])
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.select_related("category").all()
-    # permission_classes = (IsAdminUserOrReadOnly,)
+    permission_classes = (IsAdminUserOrReadOnly,)
     pagination_class = Pagination
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_class = ProductFilter
