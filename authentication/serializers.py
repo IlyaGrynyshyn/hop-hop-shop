@@ -16,7 +16,7 @@ class LoginSerializer(serializers.Serializer):
 class CustomerSerializer(serializers.ModelSerializer):
     user_role = serializers.SerializerMethodField()
 
-    def get_user_role(self, obj):
+    def get_user_role(self, obj) -> str:
         if obj.is_superuser:
             return "Admin"
         elif obj.is_staff:
@@ -31,11 +31,25 @@ class CustomerSerializer(serializers.ModelSerializer):
             "password",
             "first_name",
             "last_name",
+            "image",
             "phone_number",
+            "shipping_country",
+            "shipping_city",
+            "shipping_address",
+            "shipping_postcode",
             "user_role",
         )
         read_only_fields = ["id", "user_role"]
         extra_kwargs = {"password": {"write_only": True, "min_length": 6}}
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        filtered_attrs = {
+            k: v for k, v in attrs.items()
+            if not isinstance(v, str) or (isinstance(v, str) and v != "")
+        }
+
+        return filtered_attrs
 
     def create(self, validated_data):
         return get_user_model().objects.create_user(**validated_data)
@@ -44,13 +58,14 @@ class CustomerSerializer(serializers.ModelSerializer):
         """Update a user, set the password correctly and return it"""
         password = validated_data.pop("password", None)
         user = super().update(instance, validated_data)
+
         if password:
             user.set_password(password)
             user.save()
         return user
 
 
-class CustomerAdminSerializer(serializers.ModelSerializer):
+class CustomerAdminSerializer(CustomerSerializer):
     is_active = serializers.BooleanField()
     is_staff = serializers.BooleanField()
 
@@ -62,7 +77,13 @@ class CustomerAdminSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "phone_number",
+            "image",
+            "shipping_country",
+            "shipping_city",
+            "shipping_address",
+            "shipping_postcode",
             "is_staff",
+            "user_role",
             "is_active",
         )
         read_only_fields = ["id", "password"]
@@ -71,6 +92,7 @@ class CustomerAdminSerializer(serializers.ModelSerializer):
         """Update a user, set the role or deactivate their account"""
         is_staff = validated_data.pop("is_staff", None)
         is_active = validated_data.pop("is_active", None)
+        validated_data.pop("password", None)
 
         user = super().update(instance, validated_data)
 
@@ -141,7 +163,7 @@ class ResetPasswordSerializer(serializers.Serializer):
         reset_password = PasswordReset.objects.filter(user_id=user.id).first()
         if not reset_password:
             raise serializers.ValidationError("Wrong recovery address, provided user didn't request "
-                                                          "recovery password.")
+                                              "recovery password.")
 
         valid_token = reset_password.token == attrs["token"]
         is_expired = reset_password.expires_at < timezone.now()

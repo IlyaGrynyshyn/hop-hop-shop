@@ -138,7 +138,6 @@ class CustomersListView(viewsets.ModelViewSet):
     queryset = Customer.objects.all()
     pagination_class = Pagination
     permission_classes = (IsAdminUser,)
-
     http_method_names = ["get", "patch"]
 
     @extend_schema(

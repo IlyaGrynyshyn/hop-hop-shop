@@ -1,3 +1,5 @@
+import os
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
@@ -8,10 +10,28 @@ from datetime import timedelta
 from authentication.managers import UserManager
 
 
+def customer_image_file_path(instance, filename):
+    _, extension = os.path.splitext(filename)
+    filename = f"customer-{instance.id}{extension}"
+
+    return os.path.join("uploads/customers/", filename)
+
+
 class Customer(AbstractUser):
     username = None
     email = models.EmailField(_("email address"), unique=True)
     phone_number = models.CharField(_("phone number"), max_length=17, blank=True)
+    image = models.ImageField(
+        null=True,
+        blank=True,
+        upload_to=customer_image_file_path,
+        max_length=255,
+    )
+
+    shipping_country = models.CharField(max_length=100, null=True, blank=True)
+    shipping_city = models.CharField(max_length=100, null=True, blank=True)
+    shipping_address = models.CharField(max_length=255, null=True, blank=True)
+    shipping_postcode = models.CharField(max_length=20, null=True, blank=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
@@ -33,5 +53,5 @@ class PasswordReset(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.expires_at:
-            self.expires_at = timezone.now() + timedelta(days=1)
+            self.expires_at = timezone.now() + timedelta(minutes=15)
         super().save(*args, **kwargs)
