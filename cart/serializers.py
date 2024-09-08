@@ -41,6 +41,8 @@ class UseCouponSerializer(serializers.ModelSerializer):
 
 
 class CouponSerializer(serializers.ModelSerializer):
+    valid_to = serializers.DateTimeField(format="%d-%m-%Y")
+
     class Meta:
         model = Coupon
         fields = "__all__"
