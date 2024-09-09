@@ -77,7 +77,7 @@ class CustomerAdminSerializer(CustomerSerializer):
             "first_name",
             "last_name",
             "phone_number",
-            "image",
+            "avatar",
             "shipping_country",
             "shipping_city",
             "shipping_address",
