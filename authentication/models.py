@@ -21,7 +21,7 @@ class Customer(AbstractUser):
     username = None
     email = models.EmailField(_("email address"), unique=True)
     phone_number = models.CharField(_("phone number"), max_length=17, blank=True)
-    image = models.ImageField(
+    avatar = models.ImageField(
         null=True,
         blank=True,
         upload_to=customer_image_file_path,

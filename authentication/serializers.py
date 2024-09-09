@@ -31,7 +31,7 @@ class CustomerSerializer(serializers.ModelSerializer):
             "password",
             "first_name",
             "last_name",
-            "image",
+            "avatar",
             "phone_number",
             "shipping_country",
             "shipping_city",
