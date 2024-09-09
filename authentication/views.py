@@ -1,9 +1,11 @@
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
-from drf_spectacular.utils import extend_schema
+from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import generics, viewsets
 from rest_framework import status
+from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -138,11 +140,21 @@ class CustomersListView(viewsets.ModelViewSet):
     queryset = Customer.objects.all()
     pagination_class = Pagination
     permission_classes = (IsAdminUser,)
+    filter_backends = [SearchFilter,]
+    search_fields = ['first_name',]
     http_method_names = ["get", "patch"]
 
     @extend_schema(
         summary="Retrieve a list of customers",
         description="This endpoint returns a list of all customers.",
+        parameters=[
+            OpenApiParameter(
+                name="search",
+                description="Search by name and/or surname",
+                required=False,
+                type=str,
+            )
+        ],
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
