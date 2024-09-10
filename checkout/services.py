@@ -39,7 +39,7 @@ class OrderService:
             raise CartEmptyException
         card_information = validated_data.pop("card_information", None)
         order = self._create_order_instance(validated_data)
-        order_items = self._get_cart_items()
+        order_items = self._create_order_items(order)
 
         total_price = self.cart_service.get_total_price()
         return OrderData(order, order_items, card_information, total_price)
