@@ -26,6 +26,8 @@ class CheckoutView(generics.CreateAPIView):
             payment_service = PaymentService()
 
             order_data = order_service.create_order(serializer.validated_data)
+            serializer.validated_data['order_id'] = order_data.order.id
+
             response = payment_service.stripe_card_payment(
                 order_data.card_information, order_data.total_price
             )
@@ -39,7 +41,7 @@ class CheckoutView(generics.CreateAPIView):
 
                 return Response(
                     {
-                        "order": serializer.data,
+                        "order": serializer.validated_data,
                         "payment_id": response.data.get("payment_id"),
                         "message": "Order created and payment successful",
                         "sessionid": request.session.get("session_key", None),
