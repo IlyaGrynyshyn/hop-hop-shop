@@ -122,31 +122,31 @@ class ResetPasswordRequestSerializer(serializers.ModelSerializer):
         token = token_generator.make_token(user)
 
         attrs['token'] = token
-        attrs['user_id'] = user.id
 
         return attrs
 
     def create(self, validated_data):
         token = validated_data.pop('token', None)
         email = validated_data.pop('email', None)
-        user_id = validated_data.pop('user_id', None)
 
-        reset_password = PasswordReset.objects.filter(user_id=user_id).first()
+        reset_password = PasswordReset.objects.filter(user__email__iexact=email).first()
 
         if reset_password:
             reset_password.delete()
 
-        instance = PasswordReset(user_id=user_id, token=token)
+        user = get_user_model().objects.filter(email__iexact=email).first()
+
+        instance = PasswordReset(user=user, token=token)
         instance.save()
 
-        send_reset_password_email(user_id, token, email)
+        send_reset_password_email(token, email)
 
         return instance
 
 
 class ResetPasswordSerializer(serializers.Serializer):
     token = serializers.CharField(write_only=True, required=True)
-    user_id = serializers.IntegerField(write_only=True, required=True)
+    email = serializers.EmailField(write_only=True, required=True)
     password = serializers.CharField(write_only=True, required=True)
     password2 = serializers.CharField(write_only=True, required=True)
 
@@ -156,11 +156,11 @@ class ResetPasswordSerializer(serializers.Serializer):
         :param attrs:
         :return:
         """
-        user = get_user_model().objects.filter(id=attrs['user_id']).first()
+        user = get_user_model().objects.filter(email__iexact=attrs['email']).first()
         if not user:
             raise serializers.ValidationError("There is no user with the provided id.")
 
-        reset_password = PasswordReset.objects.filter(user_id=user.id).first()
+        reset_password = PasswordReset.objects.filter(user__email__iexact=user.email).first()
         if not reset_password:
             raise serializers.ValidationError("Wrong recovery address, provided user didn't request "
                                               "recovery password.")
@@ -180,11 +180,11 @@ class ResetPasswordSerializer(serializers.Serializer):
         return attrs
 
     def save(self, **kwargs):
-        user = get_user_model().objects.filter(id=self.validated_data["user_id"]).first()
+        user = get_user_model().objects.filter(email__iexact=self.validated_data["email"]).first()
         user.set_password(self.validated_data["password"])
         user.save()
 
-        reset_password = PasswordReset.objects.filter(user_id=self.validated_data["user_id"]).first()
+        reset_password = PasswordReset.objects.filter(user__email__iexact=self.validated_data["email"]).first()
         reset_password.delete()
 
 
