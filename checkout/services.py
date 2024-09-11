@@ -38,6 +38,7 @@ class OrderService:
         if not self._is_cart_not_empty():
             raise CartEmptyException
         card_information = validated_data.pop("card_information", None)
+        validated_data["coupon_id"] = self.cart_service.coupon_id
         order = self._create_order_instance(validated_data)
         order_items = self._create_order_items(order)
 
