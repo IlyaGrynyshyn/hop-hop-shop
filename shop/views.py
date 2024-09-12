@@ -3,6 +3,7 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter, extend_schema
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter
+from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
@@ -18,6 +19,16 @@ from shop.serializers import (
 )
 from utils.pagination import Pagination
 from utils.permissions import IsAdminUserOrReadOnly
+
+
+@extend_schema(tags=["categories"],
+               summary="Retrieve a list of categories",
+               description="This endpoint returns a "
+                           "list of all categories. "
+                           "Doesn't support pagination.", )
+class ListCategories(ListAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
 
 
 @extend_schema(tags=["categories"])
