@@ -121,6 +121,8 @@ class OrderSerializer(serializers.ModelSerializer):
             "shipping_city",
             "shipping_address",
             "shipping_postcode",
+            "payment_id",
+            "payment_type",
             "paid",
             "status",
             "items",
@@ -130,7 +132,7 @@ class OrderSerializer(serializers.ModelSerializer):
             "card_information",
         ]
         write_only_fields = ["created_at", "updated_at", "paid"]
-        read_only_fields = ["customer", "paid", "status", "total_price"]
+        read_only_fields = ["customer", "coupon", "payment_id", "payment_type", "paid", "status", "total_price"]
 
     def get_subtotal_price(self, obj):
         return sum(item.quantity * item.price for item in obj.items.all())
