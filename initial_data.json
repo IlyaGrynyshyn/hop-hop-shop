@@ -12,7 +12,7 @@
       "is_active": true,
       "date_joined": "2024-07-18T10:15:44.685Z",
       "email": "admin@admin.com",
-      "phone_number": "",
+      "phone_number": "234234234",
       "groups": [],
       "user_permissions": []
     }
@@ -30,7 +30,7 @@
       "is_active": true,
       "date_joined": "2024-08-21T19:07:49.641Z",
       "email": "hhs-admin-frontend@mail.com",
-      "phone_number": "",
+      "phone_number": "123123123",
       "groups": [],
       "user_permissions": []
     }
@@ -48,7 +48,7 @@
       "is_active": true,
       "date_joined": "2024-08-21T19:08:12.716Z",
       "email": "hhs-admin-backend@mail.com",
-      "phone_number": "",
+      "phone_number": "454545",
       "groups": [],
       "user_permissions": []
     }
@@ -66,7 +66,7 @@
       "is_active": true,
       "date_joined": "2024-08-21T19:08:28.579Z",
       "email": "hhs-admin-qa@mail.com",
-      "phone_number": "",
+      "phone_number": "565656",
       "groups": [],
       "user_permissions": []
     }

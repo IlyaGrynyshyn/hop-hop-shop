@@ -33,6 +33,8 @@ class CheckoutView(generics.CreateAPIView):
             )
 
             if response.status_code == status.HTTP_200_OK:
+                serializer.validated_data['payment_id'] = response.data["payment_id"]
+                serializer.validated_data['payment_type'] = "card"
                 order_data.order.paid = True
                 order_data.order.status = "Paid"
                 order_data.order.save()
