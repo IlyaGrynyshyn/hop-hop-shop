@@ -87,14 +87,15 @@ class PaymentService:
             },
         }
         try:
-            stripe.PaymentIntent.create(
+            payment = stripe.PaymentIntent.create(
                 amount=int(total_price * 100),
                 currency="usd",
                 payment_method_data=payment_method_data,
                 confirm=True,
                 return_url="http://127.0.0.1:8000/api/doc/",
             )
-            return Response(status=status.HTTP_200_OK)
+            data = {"payment_id": payment["payment_method"]}
+            return Response(data=data, status=status.HTTP_200_OK)
         except stripe.error.CardError as e:
             raise StripeCardError(detail=str(e))
 

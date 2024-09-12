@@ -29,6 +29,7 @@ class CheckoutView(generics.CreateAPIView):
             response = payment_service.stripe_card_payment(
                 order_data.card_information, order_data.total_price
             )
+
             if response.status_code == status.HTTP_200_OK:
                 order_data.order.paid = True
                 order_data.order.status = "Paid"
@@ -39,6 +40,7 @@ class CheckoutView(generics.CreateAPIView):
                 return Response(
                     {
                         "order": serializer.data,
+                        "payment_id": response.data.get("payment_id"),
                         "message": "Order created and payment successful",
                         "sessionid": request.session.get("session_key", None),
                     },
