@@ -40,6 +40,7 @@ class OrderService:
         card_information = validated_data.pop("card_information", None)
         validated_data["coupon_id"] = self.cart_service.coupon_id
         order = self._create_order_instance(validated_data)
+        validated_data.pop("coupon_id", None)
         order_items = self._create_order_items(order)
 
         total_price = self.cart_service.get_total_price()
