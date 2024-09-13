@@ -1,3 +1,5 @@
+import datetime
+
 from rest_framework import serializers
 from cart.models import Cart, CartItem, Coupon
 from shop.models import Product
@@ -40,8 +42,22 @@ class UseCouponSerializer(serializers.ModelSerializer):
         fields = ["code"]
 
 
+class DateTimeToDateField(serializers.Field):
+    def to_representation(self, value):
+        if isinstance(value, datetime.datetime):
+            return value.date()
+        return value
+
+    def to_internal_value(self, data):
+        try:
+            return datetime.datetime.strptime(data, '%d-%m-%Y').date()
+        except ValueError:
+            raise serializers.ValidationError("Неправильний формат дати. Очікується формат 'DD-MM-YYYY'.")
+
+
 class CouponSerializer(serializers.ModelSerializer):
-    valid_to = serializers.DateField(input_formats=['%d-%m-%Y'])
+    valid_to = DateTimeToDateField()
+    valid_from = DateTimeToDateField()
 
     class Meta:
         model = Coupon
