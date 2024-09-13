@@ -33,16 +33,19 @@ class CheckoutView(generics.CreateAPIView):
             )
 
             if response.status_code == status.HTTP_200_OK:
+                payment_id = response.data.get("payment_id")
                 order_data.order.paid = True
                 order_data.order.payment_status = "Paid"
+                order_data.order.payment_id = payment_id
+                order_data.order.payment_type = "card"
                 order_data.order.save()
-                send_notification_mail.delay(user_email=order_data.order.email)
+                # send_notification_mail.delay(user_email=order_data.order.email)
                 order_service.clear_cart()
 
                 return Response(
                     {
                         "order": serializer.validated_data,
-                        "payment_id": response.data.get("payment_id"),
+                        "payment_id": payment_id,
                         "message": "Order created and payment successful",
                         "sessionid": request.session.get("session_key", None),
                     },
