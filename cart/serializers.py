@@ -57,8 +57,13 @@ class DateTimeToDateField(serializers.Field):
 
 class CouponSerializer(serializers.ModelSerializer):
     valid_to = DateTimeToDateField()
-    valid_from = DateTimeToDateField()
+    valid_from = DateTimeToDateField(read_only=True)
+
+    def create(self, validated_data):
+        validated_data['valid_from'] = datetime.date.today()
+        return super().create(validated_data)
 
     class Meta:
         model = Coupon
         fields = "__all__"
+
