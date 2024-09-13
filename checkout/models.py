@@ -5,14 +5,19 @@ from cart.models import Coupon
 from shop.models import Product
 
 
-class OrderStatus(models.TextChoices):
+class PaymentStatus(models.TextChoices):
     STATUS_PENDING = "Pending"
     STATUS_PAID = "Paid"
-    STATUS_CANCELLED = "Cancelled"
-    STATUS_REFUNDED = "Refunded"
-    STATUS_SHIPPED = "Shipped"
+    STATUS_CANCELED = "Canceled"
+    STATUS_FAILED = "Failed"
+
+
+class OrderStatus(models.TextChoices):
+    STATUS_PENDING = "Pending"
+    STATUS_IN_PROGRESS = "In Progress"
+    STATUS_IN_TRANSIT = "In Transit"
     STATUS_DELIVERED = "Delivered"
-    STATUS_COMPLETED = "Completed"
+    STATUS_CANCELED = "Canceled"
 
 
 class Order(models.Model):
@@ -23,7 +28,6 @@ class Order(models.Model):
     last_name = models.CharField(max_length=100)
     email = models.EmailField(blank=True, null=True)
     phone = models.CharField(max_length=50)
-    paid = models.BooleanField(default=False)
     shipping_address = models.CharField(max_length=255)
     shipping_city = models.CharField(max_length=255)
     shipping_postcode = models.CharField(max_length=20)
@@ -32,7 +36,10 @@ class Order(models.Model):
     payment_type = models.CharField(max_length=100, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    status = models.CharField(
+    payment_status = models.CharField(
+        max_length=50, choices=PaymentStatus.choices, default=PaymentStatus.STATUS_PENDING
+    )
+    order_status = models.CharField(
         max_length=50, choices=OrderStatus.choices, default=OrderStatus.STATUS_PENDING
     )
     coupon = models.ForeignKey(Coupon, null=True, blank=True, on_delete=models.SET_NULL)
