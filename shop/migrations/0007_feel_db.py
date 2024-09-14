@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         ("shop", "0006_category_image"),
     ]
 
-    operations = [
-        migrations.RunPython(load_fixture_data),
-    ]
+    # operations = [
+    #     migrations.RunPython(load_fixture_data),
+    # ]
