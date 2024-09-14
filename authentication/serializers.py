@@ -15,6 +15,9 @@ class LoginSerializer(serializers.Serializer):
 
 class CustomerSerializer(serializers.ModelSerializer):
     user_role = serializers.SerializerMethodField()
+    old_password = serializers.CharField(write_only=True, required=True)
+    password = serializers.CharField(write_only=True, required=True)
+    password2 = serializers.CharField(write_only=True, required=True)
 
     def get_user_role(self, obj) -> str:
         if obj.is_superuser:
@@ -28,7 +31,6 @@ class CustomerSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "email",
-            "password",
             "first_name",
             "last_name",
             "avatar",
@@ -37,10 +39,31 @@ class CustomerSerializer(serializers.ModelSerializer):
             "shipping_city",
             "shipping_address",
             "shipping_postcode",
+            "old_password",
+            "password",
+            "password2",
             "user_role",
         )
         read_only_fields = ["id", "user_role"]
         extra_kwargs = {"password": {"write_only": True, "min_length": 6}}
+
+    def validate_password_change(self, attrs):
+        old_password = attrs.get("old_password", None)
+        password = attrs.get("password", None)
+        password2 = attrs.get("password2", None)
+
+        if not old_password:
+            raise serializers.ValidationError("Missing old password")
+
+        if old_password and not self.instance.check_password(old_password):
+            raise serializers.ValidationError("Incorrect old password")
+
+        if not password or not password2:
+            raise serializers.ValidationError("Missing password or/and password2")
+        elif password != password2:
+            raise serializers.ValidationError("Passwords do not match")
+
+        return attrs
 
     def validate(self, attrs):
         attrs = super().validate(attrs)
@@ -48,6 +71,9 @@ class CustomerSerializer(serializers.ModelSerializer):
             k: v for k, v in attrs.items()
             if not isinstance(v, str) or (isinstance(v, str) and v != "")
         }
+
+        if "old_password" in filtered_attrs or "password" in filtered_attrs or "password2" in filtered_attrs:
+            filtered_attrs = self.validate_password_change(filtered_attrs)
 
         return filtered_attrs
 
@@ -187,41 +213,3 @@ class ResetPasswordSerializer(serializers.Serializer):
         reset_password = PasswordReset.objects.filter(user__email__iexact=self.validated_data["email"]).first()
         reset_password.delete()
 
-
-class ChangePasswordSerializer(serializers.ModelSerializer):
-    old_password = serializers.CharField(write_only=True, required=True)
-    password = serializers.CharField(write_only=True, required=True)
-    password2 = serializers.CharField(write_only=True, required=True)
-
-    class Meta:
-        model = get_user_model()
-        fields = ("old_password", "password", "password2")
-
-    def validate(self, attrs):
-        """
-        Validate that the password and password2 match
-        :param attrs:
-        :return:
-        """
-        if attrs["password"] != attrs["password2"]:
-            raise serializers.ValidationError({"password": "Passwords do not match"})
-        return attrs
-
-    def validate_old_password(self, value):
-        """
-        Validate old password against current password
-        """
-        user = self.context["request"].user
-        if not user.check_password(value):
-            raise serializers.ValidationError(
-                {"old_password": "Old password is not correct"}
-            )
-        return value
-
-    def update(self, instance, validated_data):
-        """
-        Update user password with new password
-        """
-        instance.set_password(validated_data["password"])
-        instance.save()
-        return instance

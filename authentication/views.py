@@ -15,7 +15,6 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from authentication.models import Customer
 from authentication.serializers import (
     CustomerSerializer,
-    ChangePasswordSerializer,
     LoginSerializer, CustomerAdminSerializer,
     ResetPasswordSerializer, ResetPasswordRequestSerializer,
 )
@@ -140,8 +139,8 @@ class CustomersListView(viewsets.ModelViewSet):
     queryset = Customer.objects.all()
     pagination_class = Pagination
     permission_classes = (IsAdminUser,)
-    filter_backends = [SearchFilter,]
-    search_fields = ['first_name',]
+    filter_backends = [SearchFilter, ]
+    search_fields = ['first_name', ]
     http_method_names = ["get", "patch"]
 
     @extend_schema(
@@ -209,12 +208,6 @@ class PasswordResetRequestView(APIView):
             password_reset_request_serializer.save()
 
             return Response("Recovery email was successfully sent", status=status.HTTP_200_OK)
-
-
-class ChangePasswordViewSet(generics.UpdateAPIView):
-    queryset = get_user_model()
-    serializer_class = ChangePasswordSerializer
-    permission_classes = [IsAuthenticated]
 
 
 @extend_schema(tags=["authentication"])
