@@ -41,6 +41,11 @@ class Customer(AbstractUser):
     def __str__(self):
         return self.email
 
+    class Meta:
+        verbose_name = _("user")
+        verbose_name_plural = _("users")
+        ordering = ["id"]
+
 
 class PasswordReset(models.Model):
     token = models.CharField(max_length=100, unique=True)

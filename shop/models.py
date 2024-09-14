@@ -33,12 +33,12 @@ class Category(models.Model):
 
     class Meta:
         app_label = "shop"
-        ordering = ["id"]
+        ordering = ["-id"]
 
 
 class Product(models.Model):
     name = models.CharField(max_length=100, db_index=True)
-    category = models.ForeignKey(Category, on_delete=models.DO_NOTHING)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
     slug = models.SlugField(max_length=255, unique=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     SKU = models.IntegerField(unique=True, db_index=True)
@@ -57,7 +57,7 @@ class Product(models.Model):
         verbose_name = "Product"
         verbose_name_plural = "Products"
         app_label = "shop"
-        ordering = ["id"]
+        ordering = ["-id"]
 
 
 class ProductImage(models.Model):
@@ -75,7 +75,7 @@ class ProductImage(models.Model):
         return f"Image for {self.product.name}"
 
     class Meta:
-        ordering = ["id"]
+        ordering = ["-id"]
         app_label = "shop"
 
 
