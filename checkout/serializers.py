@@ -69,7 +69,13 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderItem
-        fields = ["product_id", "product_name", "product_price", "quantity", "total_price"]
+        fields = [
+            "product_id",
+            "product_name",
+            "product_price",
+            "quantity",
+            "total_price",
+        ]
 
     def get_product_id(self, obj):
         return obj.product_id
@@ -96,7 +102,14 @@ class OrderListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ["id", "payment_status", "order_status", "created_at", "total_quantity", "total_price"]
+        fields = [
+            "id",
+            "payment_status",
+            "order_status",
+            "created_at",
+            "total_quantity",
+            "total_price",
+        ]
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -131,9 +144,16 @@ class OrderSerializer(serializers.ModelSerializer):
             "discount",
             "card_information",
         ]
-        write_only_fields = ["created_at", "updated_at"]
-        read_only_fields = ["customer", "coupon", "payment_id",
-                            "payment_type", "payment_status", "total_price"]
+        read_only_fields = [
+            "customer",
+            "coupon",
+            "payment_id",
+            "payment_type",
+            "payment_status",
+            "total_price",
+            "created_at",
+            "updated_at",
+        ]
 
     def get_subtotal_price(self, obj):
         return sum(item.quantity * item.price for item in obj.items.all())
