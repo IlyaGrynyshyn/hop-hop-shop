@@ -39,7 +39,7 @@ class CheckoutView(generics.CreateAPIView):
                 order_data.order.payment_id = payment_id
                 order_data.order.payment_type = "card"
                 order_data.order.save()
-                send_notification_mail.delay(user_email=order_data.order.email)
+                # send_notification_mail.delay(user_email=order_data.order.email)
                 order_service.clear_cart()
 
                 return Response(
