@@ -8,16 +8,49 @@ from authentication.models import PasswordReset
 from authentication.utils import send_reset_password_email
 
 
+def validate_password_confirm(password, password2):
+    if password != password2:
+        raise serializers.ValidationError("Passwords do not match")
+    return True
+
+
 class LoginSerializer(serializers.Serializer):
     email = serializers.CharField()
     password = serializers.CharField()
 
 
+class RegistrationSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, min_length=6)
+    password2 = serializers.CharField(write_only=True, min_length=6)
+
+    class Meta:
+        model = get_user_model()
+        fields = (
+            "email",
+            "first_name",
+            "last_name",
+            "phone_number",
+            "password",
+            "password2",
+        )
+
+    def validate(self, attrs):
+        password = attrs.get("password", None)
+        password2 = attrs.pop("password2", None)
+
+        validate_password_confirm(password, password2)
+
+        return attrs
+
+    def create(self, validated_data):
+        return get_user_model().objects.create_user(**validated_data)
+
+
 class CustomerSerializer(serializers.ModelSerializer):
     user_role = serializers.SerializerMethodField()
-    old_password = serializers.CharField(write_only=True, required=True)
-    password = serializers.CharField(write_only=True, required=True)
-    password2 = serializers.CharField(write_only=True, required=True)
+    old_password = serializers.CharField(write_only=True)
+    password = serializers.CharField(write_only=True)
+    password2 = serializers.CharField(write_only=True)
 
     def get_user_role(self, obj) -> str:
         if obj.is_superuser:
@@ -48,20 +81,19 @@ class CustomerSerializer(serializers.ModelSerializer):
         extra_kwargs = {"password": {"write_only": True, "min_length": 6}}
 
     def validate_password_change(self, attrs):
-        old_password = attrs.get("old_password", None)
+        old_password = attrs.pop("old_password", None)
         password = attrs.get("password", None)
-        password2 = attrs.get("password2", None)
+        password2 = attrs.pop("password2", None)
 
         if not old_password:
             raise serializers.ValidationError("Missing old password")
-
-        if old_password and not self.instance.check_password(old_password):
+        elif not self.instance.check_password(old_password):
             raise serializers.ValidationError("Incorrect old password")
 
         if not password or not password2:
             raise serializers.ValidationError("Missing password or/and password2")
-        elif password != password2:
-            raise serializers.ValidationError("Passwords do not match")
+        else:
+            validate_password_confirm(password, password2)
 
         return attrs
 
@@ -76,9 +108,6 @@ class CustomerSerializer(serializers.ModelSerializer):
             filtered_attrs = self.validate_password_change(filtered_attrs)
 
         return filtered_attrs
-
-    def create(self, validated_data):
-        return get_user_model().objects.create_user(**validated_data)
 
     def update(self, instance, validated_data):
         """Update a user, set the password correctly and return it"""
@@ -200,8 +229,7 @@ class ResetPasswordSerializer(serializers.Serializer):
         if not valid_token:
             raise serializers.ValidationError("Invalid secret token value.")
 
-        if attrs["password"] != attrs["password2"]:
-            raise serializers.ValidationError("Passwords do not match.")
+        validate_password_confirm(attrs["password"], attrs["password2"])
 
         return attrs
 
@@ -212,4 +240,3 @@ class ResetPasswordSerializer(serializers.Serializer):
 
         reset_password = PasswordReset.objects.filter(user__email__iexact=self.validated_data["email"]).first()
         reset_password.delete()
-
