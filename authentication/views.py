@@ -1,7 +1,5 @@
 from django.conf import settings
 from django.contrib.auth import authenticate
-from django.contrib.auth import get_user_model
-from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import generics, viewsets
 from rest_framework import status
@@ -16,7 +14,7 @@ from authentication.models import Customer
 from authentication.serializers import (
     CustomerSerializer,
     LoginSerializer, CustomerAdminSerializer,
-    ResetPasswordSerializer, ResetPasswordRequestSerializer,
+    ResetPasswordSerializer, ResetPasswordRequestSerializer, RegistrationSerializer,
 )
 from utils.custom_exceptions import InvalidCredentialsError
 from utils.pagination import Pagination
@@ -32,7 +30,7 @@ class CreateCustomerView(generics.CreateAPIView):
 
     """
 
-    serializer_class = CustomerSerializer
+    serializer_class = RegistrationSerializer
 
     def create(self, request, *args, **kwargs) -> Response:
         """
