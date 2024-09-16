@@ -7,7 +7,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
-from shop.filters import ProductFilter
+from shop.filters import ProductFilter, CategoryFilter
 from shop.models import Category, Product, ProductImage
 from shop.serializers import (
     CategorySerializer,
@@ -35,6 +35,8 @@ class ListCategories(ListAPIView):
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     pagination_class = Pagination
+    filter_backends = [DjangoFilterBackend,]
+    filterset_class = CategoryFilter
     permission_classes = (IsAdminUserOrReadOnly,)
 
     def get_serializer_class(self):
@@ -45,6 +47,14 @@ class CategoryViewSet(viewsets.ModelViewSet):
     @extend_schema(
         summary="Retrieve a list of categories",
         description="This endpoint returns a list of all categories. Supports pagination if configured.",
+        parameters=[
+            OpenApiParameter(
+                name="name",
+                description="Search by category name.",
+                required=False,
+                type=str,
+            )
+        ]
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
