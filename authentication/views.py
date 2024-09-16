@@ -140,7 +140,7 @@ class CustomersListView(viewsets.ModelViewSet):
     pagination_class = Pagination
     permission_classes = (IsAdminUser,)
     filter_backends = [SearchFilter, ]
-    search_fields = ['first_name', ]
+    search_fields = ['first_name', 'email']
     http_method_names = ["get", "patch"]
 
     @extend_schema(
