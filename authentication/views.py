@@ -18,6 +18,7 @@ from authentication.serializers import (
     LoginSerializer, CustomerAdminSerializer,
     ResetPasswordSerializer, ResetPasswordRequestSerializer,
 )
+from checkout.models import Order
 from checkout.serializers import OrderSerializer
 from utils.custom_exceptions import InvalidCredentialsError
 from utils.pagination import Pagination
