@@ -3,7 +3,7 @@ from django.conf import settings
 from rest_framework import status
 from rest_framework.response import Response
 
-from cart.services import CartSessionService
+from cart.services import CartSessionService, CartDBService
 from checkout.models import Order, OrderItem
 from shop.models import Product
 from utils.custom_exceptions import (
@@ -32,7 +32,10 @@ class OrderData:
 class OrderService:
     def __init__(self, request):
         self.request = request
-        self.cart_service = CartSessionService(request)
+        if self.request.user.is_authenticated:
+            self.cart_service = CartDBService(self.request.user)
+        else:
+            self.cart_service = CartSessionService(self.request)
 
     def create_order(self, validated_data: dict):
         if not self._is_cart_not_empty():

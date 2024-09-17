@@ -6,7 +6,7 @@ from django.db import migrations
 def load_fixture_data(apps, schema_editor):
     from django.core.management import call_command
 
-    call_command("loaddata", "initial_data.json", app_label="shop")
+    # call_command("loaddata", "initial_data.json", app_label="shop")
 
 
 class Migration(migrations.Migration):
