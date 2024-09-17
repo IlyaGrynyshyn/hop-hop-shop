@@ -38,6 +38,9 @@ class CartService:
     def add_coupon(self, coupon: Coupon) -> None:
         self.service.add_coupon(coupon)
 
+    def get_coupon(self) -> Optional[Coupon]:
+        return self.service.get_coupon()
+
     def remove_coupon(self) -> None:
         self.service.remove_coupon()
 
