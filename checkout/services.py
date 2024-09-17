@@ -22,7 +22,7 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 
 class OrderData:
     def __init__(
-        self, order=None, order_items=None, card_information=None, total_price=0
+            self, order=None, order_items=None, card_information=None, total_price=0
     ):
         self.order = order
         self.order_items = order_items
@@ -45,7 +45,7 @@ class OrderService:
         card_information = validated_data.pop("card_information", None)
         validated_data["coupon_id"] = self.cart_service.coupon_id
 
-        customer = self.request.user
+        customer = self.request.user if isinstance(self.cart_service, CartDBService) else None
 
         order = self._create_order_instance(validated_data, customer)
         validated_data.pop("coupon_id", None)
@@ -58,7 +58,7 @@ class OrderService:
     def _is_cart_not_empty(self) -> bool:
         return self.cart_service.get_total_price() > 0
 
-    def _create_order_instance(self, validated_data: dict, customer: get_user_model()) -> Order:
+    def _create_order_instance(self, validated_data: dict, customer: get_user_model() = None) -> Order:
         return Order.objects.create(**validated_data, customer=customer)
 
     def _create_order_items(self, order: Order) -> list:
@@ -86,7 +86,7 @@ class OrderService:
 class PaymentService:
     @staticmethod
     def stripe_card_payment(
-        card_information: dict, total_price: float
+            card_information: dict, total_price: float
     ) -> Response | Exception:
         payment_method_data = {
             "type": "card",
