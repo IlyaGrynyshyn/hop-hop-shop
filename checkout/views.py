@@ -102,13 +102,3 @@ class OrderListView(viewsets.ModelViewSet):
         return Response(
             {"detail": "Order deleted successfully."}, status=status.HTTP_200_OK
         )
-
-
-class ProfileOrder(viewsets.ReadOnlyModelViewSet):
-    permission_classes = (IsAuthenticated,)
-    pagination_class = Pagination
-    queryset = Order.objects.all().select_related("customer")
-    serializer_class = OrderSerializer
-
-    def get_object(self):
-        return self.request.user
