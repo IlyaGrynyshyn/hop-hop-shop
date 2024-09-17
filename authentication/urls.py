@@ -7,11 +7,13 @@ from authentication.views import (
     CustomTokenRefreshView,
     LoginView,
     LogoutView,
-    CustomersListView, PasswordResetRequestView, ResetPasswordView,
+    CustomersListView, PasswordResetRequestView, ResetPasswordView, ProfileOrder,
 )
 
 router = routers.DefaultRouter()
 router.register(r"customers", CustomersListView, basename="customers")
+router.register(r"profile", ProfileOrder, basename="profile-order")
+
 
 app_name: str = "authentication"
 urlpatterns = [

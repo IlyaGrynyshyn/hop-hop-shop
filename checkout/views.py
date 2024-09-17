@@ -1,7 +1,7 @@
 from drf_spectacular.utils import extend_schema
 from rest_framework import status, generics, viewsets
 from rest_framework.exceptions import ValidationError
-from rest_framework.permissions import IsAdminUser, AllowAny
+from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from checkout.filters import OrderFilter
@@ -26,7 +26,7 @@ class CheckoutView(generics.CreateAPIView):
             payment_service = PaymentService()
 
             order_data = order_service.create_order(serializer.validated_data)
-            serializer.validated_data['order_id'] = order_data.order.id
+            serializer.validated_data["order_id"] = order_data.order.id
 
             response = payment_service.stripe_card_payment(
                 order_data.card_information, order_data.total_price

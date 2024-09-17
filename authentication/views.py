@@ -16,6 +16,8 @@ from authentication.serializers import (
     LoginSerializer, CustomerAdminSerializer,
     ResetPasswordSerializer, ResetPasswordRequestSerializer, RegistrationSerializer,
 )
+from checkout.models import Order
+from checkout.serializers import OrderSerializer
 from utils.custom_exceptions import InvalidCredentialsError
 from utils.pagination import Pagination
 
@@ -225,3 +227,16 @@ class LogoutView(APIView):
             return response
         except Exception:
             raise ValueError
+
+
+class ProfileOrder(viewsets.ReadOnlyModelViewSet):
+    """
+    API view for retrieving orders that belong to the authenticated user
+    """
+    permission_classes = (IsAuthenticated,)
+    pagination_class = Pagination
+    serializer_class = OrderSerializer
+
+    def get_queryset(self):
+        return Order.objects.filter(customer=self.request.user).select_related("customer")
+

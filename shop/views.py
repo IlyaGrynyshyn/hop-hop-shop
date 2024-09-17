@@ -21,11 +21,13 @@ from utils.pagination import Pagination
 from utils.permissions import IsAdminUserOrReadOnly
 
 
-@extend_schema(tags=["categories"],
-               summary="Retrieve a list of categories",
-               description="This endpoint returns a "
-                           "list of all categories. "
-                           "Doesn't support pagination.", )
+@extend_schema(
+    tags=["categories"],
+    summary="Retrieve a list of categories",
+    description="This endpoint returns a "
+    "list of all categories. "
+    "Doesn't support pagination.",
+)
 class ListCategories(ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
@@ -38,6 +40,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend,]
     filterset_class = CategoryFilter
     permission_classes = (IsAdminUserOrReadOnly,)
+    filterset_class = CategoryFilter
 
     def get_serializer_class(self):
         if self.action == "upload_image":
