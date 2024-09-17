@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "drf_standardized_errors",
     "django_filters",
     "corsheaders",
+    "django_celery_results",
     "drf_spectacular",
     "cloudinary_storage",
     "cloudinary",
@@ -176,6 +177,7 @@ SPECTACULAR_SETTINGS = {
     "TITLE": "Hop Hop Shop API",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    'COMPONENT_SPLIT_REQUEST': True,
     "SWAGGER_UI_SETTINGS": {
         "deepLinking": True,
         "defaultModelRendering": "model",
@@ -214,12 +216,12 @@ DRF_STANDARDIZED_ERRORS = {
 CSRF_COOKIE_HTTPONLY = True
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=7),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "AUTH_COOKIE": "refresh_token",
-    "AUTH_COOKIE_SECURE": True,  # змініть на True в продакшені
+    "AUTH_COOKIE_SECURE": True,
     "AUTH_COOKIE_HTTPONLY": True,
     "AUTH_COOKIE_PATH": "/",
     "AUTH_COOKIE_SAMESITE": "None",
@@ -234,3 +236,18 @@ CART_SESSION_ID = "cart"
 WISHLIST_SESSION_ID = "wishlist"
 
 STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY")
+
+CELERY_BROKER_URL = os.getenv("REDIS_URL")
+CELERY_ACCEPT_CONTENT = {"application/json"}
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TASK_SERIALIZER = "json"
+CELERY_TIMEZONE = "Europe/Kyiv"
+CELERY_RESULT_BACKEND = "django-db"
+
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+EMAIL_USE_TLS = True

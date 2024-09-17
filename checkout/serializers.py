@@ -1,8 +1,12 @@
 import datetime
+from decimal import Decimal
 
 from rest_framework import serializers
 
+from cart.models import Coupon
 from checkout.models import Order, OrderItem
+from shop.models import Product
+from shop.serializers import ProductSerializer
 
 
 class CardInformationSerializer(serializers.Serializer):
@@ -58,9 +62,32 @@ class CardInformationSerializer(serializers.Serializer):
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
+    product_id = serializers.SerializerMethodField()
+    product_name = serializers.SerializerMethodField()
+    product_price = serializers.SerializerMethodField()
+    total_price = serializers.SerializerMethodField()
+
     class Meta:
         model = OrderItem
-        fields = ["product", "quantity", "price"]
+        fields = [
+            "product_id",
+            "product_name",
+            "product_price",
+            "quantity",
+            "total_price",
+        ]
+
+    def get_product_id(self, obj):
+        return obj.product_id
+
+    def get_product_name(self, obj):
+        return obj.product.name
+
+    def get_product_price(self, obj):
+        return float(obj.price)
+
+    def get_total_price(self, obj):
+        return obj.price * obj.quantity
 
 
 class OrderListSerializer(serializers.ModelSerializer):
@@ -75,17 +102,28 @@ class OrderListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ["id", "status", "created_at", "total_quantity", "total_price"]
+        fields = [
+            "id",
+            "payment_status",
+            "order_status",
+            "created_at",
+            "total_quantity",
+            "total_price",
+        ]
 
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
     card_information = CardInformationSerializer(write_only=True)
+    subtotal_price = serializers.SerializerMethodField()
+    total_price = serializers.SerializerMethodField()
+    discount = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
         fields = [
             "id",
+            "created_at",
             "customer",
             "first_name",
             "last_name",
@@ -95,13 +133,41 @@ class OrderSerializer(serializers.ModelSerializer):
             "shipping_city",
             "shipping_address",
             "shipping_postcode",
-            "paid",
-            "status",
+            "payment_id",
+            "payment_type",
+            "payment_status",
+            "order_status",
             "items",
+            "subtotal_price",
+            "total_price",
+            "coupon",
+            "discount",
             "card_information",
         ]
-        write_only_fields = ["created_at", "updated_at", "paid"]
-        read_only_fields = ["customer", "paid", "status"]
+        read_only_fields = [
+            "customer",
+            "coupon",
+            "payment_id",
+            "payment_type",
+            "payment_status",
+            "total_price",
+            "created_at",
+            "updated_at",
+        ]
+
+    def get_subtotal_price(self, obj):
+        return sum(item.quantity * item.price for item in obj.items.all())
+
+    def get_discount(self, obj):
+        if obj.coupon:
+            return obj.coupon.discount
+
+    def get_total_price(self, obj):
+        discount = self.get_discount(obj)
+        subtotal_price = self.get_subtotal_price(obj)
+        if discount:
+            return subtotal_price - (subtotal_price * Decimal(discount / 100))
+        return subtotal_price
 
     def create(self, validated_data):
         card_information = validated_data.pop("card_information", None)

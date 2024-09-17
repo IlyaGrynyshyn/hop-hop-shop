@@ -1,15 +1,16 @@
 from drf_spectacular.utils import extend_schema
-from rest_framework import status
+from rest_framework import status, generics, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from cart.models import Coupon
-from cart.serializers import CouponSerializer
+from cart.serializers import CouponSerializer, UseCouponSerializer, CartSerializer
 from shop.models import Product
 from cart.services import CartService
 from utils.custom_exceptions import (
     ProductNotExistException,
 )
+from utils.pagination import Pagination
 
 
 def cart_session_response(cart_service):
@@ -17,6 +18,7 @@ def cart_session_response(cart_service):
     total_price = cart_service.get_total_price()
     total_items = cart_service.get_total_item()
     coupon_is_used = cart_service.coupon_is_used()
+    session_id = cart_service.get_session_id()
 
     return {
         "products": cart_items,
@@ -24,6 +26,7 @@ def cart_session_response(cart_service):
         "subtotal_price": total_price,
         "total_price": total_price,
         "coupon_is_used": coupon_is_used,
+        "sessionid": session_id
     }
 
 
@@ -32,6 +35,8 @@ class CartDetailView(APIView):
     """
     Retrieve the details of the cart.
     """
+
+    serializer_class = CartSerializer
 
     def get(self, request):
         cart = CartService(request)
@@ -45,6 +50,8 @@ class CartAddItemView(APIView):
     """
     Add an item to the cart.
     """
+
+    serializer_class = CartSerializer
 
     def post(self, request, product_id):
         try:
@@ -104,7 +111,7 @@ class UseCouponView(APIView):
     Apply a coupon to the cart.
     """
 
-    serializer_class = CouponSerializer
+    serializer_class = UseCouponSerializer
 
     def post(self, request):
         code = request.data.get("code")
@@ -129,3 +136,50 @@ class RemoveCouponView(APIView):
         cart = CartService(request)
         cart.remove_coupon()
         return Response(cart, status=status.HTTP_200_OK)
+
+
+@extend_schema(tags=["coupon"])
+class CouponView(viewsets.ModelViewSet):
+    queryset = Coupon.objects.all()
+    serializer_class = CouponSerializer
+    pagination_class = Pagination
+    http_method_names = ["get", "post", "patch", "delete"]
+
+    @extend_schema(
+        summary="Retrieve a list of coupons",
+        description="This endpoint returns a list of all coupons.",
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Create a new coupon",
+        description="This endpoint allows you to create a new coupon. You need to provide the required fields.",
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Retrieve a specific coupon",
+        description="This endpoint returns the details of a specific coupon identified by its ID.",
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Update an existing coupon",
+        description="This endpoint allows you to update an existing coupon identified by its ID. You only need to provide the fields you want to update.",
+    )
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Delete a coupon",
+        description="This endpoint allows you to delete a coupon identified by its ID.",
+    )
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(
+            {"detail": "Coupon deleted successfully."}, status=status.HTTP_200_OK
+        )

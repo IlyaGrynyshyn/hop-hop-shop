@@ -1,10 +1,10 @@
 from django.conf import settings
 from django.contrib.auth import authenticate
-from django.contrib.auth import get_user_model
-from drf_spectacular.utils import extend_schema
-from rest_framework import generics
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+from rest_framework import generics, viewsets
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.filters import SearchFilter
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -13,10 +13,13 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from authentication.models import Customer
 from authentication.serializers import (
     CustomerSerializer,
-    ChangePasswordSerializer,
-    LoginSerializer,
+    LoginSerializer, CustomerAdminSerializer,
+    ResetPasswordSerializer, ResetPasswordRequestSerializer, RegistrationSerializer,
 )
+from checkout.models import Order
+from checkout.serializers import OrderSerializer
 from utils.custom_exceptions import InvalidCredentialsError
+from utils.pagination import Pagination
 
 
 @extend_schema(tags=["authentication"], summary="Registering a new user")
@@ -29,7 +32,7 @@ class CreateCustomerView(generics.CreateAPIView):
 
     """
 
-    serializer_class = CustomerSerializer
+    serializer_class = RegistrationSerializer
 
     def create(self, request, *args, **kwargs) -> Response:
         """
@@ -48,19 +51,19 @@ class CreateCustomerView(generics.CreateAPIView):
         if user is not None:
             refresh = RefreshToken.for_user(user)
             response = Response(status=status.HTTP_201_CREATED)
-            response.set_cookie(
-                key=settings.SIMPLE_JWT["AUTH_COOKIE"],
-                value=refresh,
-                expires=settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"],
-                secure=settings.SIMPLE_JWT["AUTH_COOKIE_SECURE"],
-                httponly=True,
-                samesite=settings.SIMPLE_JWT["AUTH_COOKIE_SAMESITE"],
-            )
+
             response.data = {
                 "user": CustomerSerializer(user).data,
-                "access": str(refresh.access_token),
-                "refresh": str(refresh),
+                "access_token": {
+                    "value": str(refresh.access_token),
+                    "expires": settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"].total_seconds(),
+                },
+                "refresh_token": {
+                    "value": str(refresh),
+                    "expires": settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds(),
+                },
             }
+
             return response
 
 
@@ -98,17 +101,17 @@ class LoginView(APIView):
         if user is not None:
             refresh = RefreshToken.for_user(user)
             response = Response()
-            response.set_cookie(
-                key=settings.SIMPLE_JWT["AUTH_COOKIE"],
-                value=refresh,
-                expires=settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"],
-                secure=settings.SIMPLE_JWT["AUTH_COOKIE_SECURE"],
-                httponly=True,
-                samesite=settings.SIMPLE_JWT["AUTH_COOKIE_SAMESITE"],
-            )
+
             response.data = {
                 "user": CustomerSerializer(user).data,
-                "access": str(refresh.access_token),
+                "access_token": {
+                    "value": str(refresh.access_token),
+                    "expires": settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"].total_seconds(),
+                },
+                "refresh_token": {
+                    "value": str(refresh),
+                    "expires": settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds(),
+                },
             }
             return response
         raise InvalidCredentialsError
@@ -127,13 +130,48 @@ class CustomTokenRefreshView(TokenRefreshView):
 
 
 @extend_schema(tags=["customer data"], summary="Get all customers")
-class CustomersListView(generics.ListAPIView):
+class CustomersListView(viewsets.ModelViewSet):
     """
-    API view to list all customers.
+    API viewset to list all customers, retrieve one customer and update their personal information/roles/set them as inactive.
     """
 
-    serializer_class = CustomerSerializer
+    serializer_class = CustomerAdminSerializer
     queryset = Customer.objects.all()
+    pagination_class = Pagination
+    permission_classes = (IsAdminUser,)
+    filter_backends = [SearchFilter, ]
+    search_fields = ['first_name', 'email']
+    http_method_names = ["get", "patch"]
+
+    @extend_schema(
+        summary="Retrieve a list of customers",
+        description="This endpoint returns a list of all customers.",
+        parameters=[
+            OpenApiParameter(
+                name="search",
+                description="Search by name and/or surname",
+                required=False,
+                type=str,
+            )
+        ],
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Retrieve a specific customer",
+        description="This endpoint returns the details of a specific customer identified by its ID.",
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Update an existing customer",
+        description="This endpoint allows you to update an existing customer identified by its ID. You only need to "
+                    "provide the fields you want to update.",
+    )
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
 
 
 @extend_schema(tags=["customer data"], summary="Get information about your profile")
@@ -149,7 +187,56 @@ class CustomerProfileView(generics.RetrieveUpdateAPIView):
         return self.request.user
 
 
-class ChangePasswordViewSet(generics.UpdateAPIView):
-    queryset = get_user_model()
-    serializer_class = ChangePasswordSerializer
+class ResetPasswordView(APIView):
+    serializer_class = ResetPasswordSerializer
+
+    def post(self, request, *args, **kwargs):
+        reset_password_serializer = self.serializer_class(data=request.data)
+        if reset_password_serializer.is_valid(raise_exception=True):
+            reset_password_serializer.save()
+
+            return Response("Password was successfully changed", status=status.HTTP_200_OK)
+
+
+class PasswordResetRequestView(APIView):
+    serializer_class = ResetPasswordRequestSerializer
+
+    def post(self, request, *args, **kwargs):
+        password_reset_request_serializer = self.serializer_class(data=request.data)
+
+        if password_reset_request_serializer.is_valid(raise_exception=True):
+            password_reset_request_serializer.save()
+
+            return Response("Recovery email was successfully sent", status=status.HTTP_200_OK)
+
+
+@extend_schema(tags=["authentication"])
+class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            refresh_token = request.data.get("refresh_token")
+            if refresh_token:
+                token = RefreshToken(refresh_token)
+                token.blacklist()
+            response = Response(
+                {"message": "Logout successful"}, status=status.HTTP_204_NO_CONTENT
+            )
+            response.delete_cookie("refresh_token")
+            return response
+        except Exception:
+            raise ValueError
+
+
+class ProfileOrder(viewsets.ReadOnlyModelViewSet):
+    """
+    API view for retrieving orders that belong to the authenticated user
+    """
+    permission_classes = (IsAuthenticated,)
+    pagination_class = Pagination
+    serializer_class = OrderSerializer
+
+    def get_queryset(self):
+        return Order.objects.filter(customer=self.request.user).select_related("customer")
+

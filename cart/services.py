@@ -50,6 +50,9 @@ class CartService:
     def get_total_item(self) -> int:
         return self.service.get_total_item()
 
+    def get_session_id(self) -> int:
+        return self.request.session.session_key
+
     def __iter__(self):
         return iter(self.service)
 
