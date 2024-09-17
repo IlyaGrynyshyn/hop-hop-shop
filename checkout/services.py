@@ -1,5 +1,6 @@
 import stripe
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -40,10 +41,15 @@ class OrderService:
     def create_order(self, validated_data: dict):
         if not self._is_cart_not_empty():
             raise CartEmptyException
+
         card_information = validated_data.pop("card_information", None)
         validated_data["coupon_id"] = self.cart_service.coupon_id
-        order = self._create_order_instance(validated_data)
+
+        customer = self.request.user
+
+        order = self._create_order_instance(validated_data, customer)
         validated_data.pop("coupon_id", None)
+
         order_items = self._create_order_items(order)
 
         total_price = self.cart_service.get_total_price()
@@ -52,8 +58,8 @@ class OrderService:
     def _is_cart_not_empty(self) -> bool:
         return self.cart_service.get_total_price() > 0
 
-    def _create_order_instance(self, validated_data: dict) -> Order:
-        return Order.objects.create(**validated_data)
+    def _create_order_instance(self, validated_data: dict, customer: get_user_model()) -> Order:
+        return Order.objects.create(**validated_data, customer=customer)
 
     def _create_order_items(self, order: Order) -> list:
         items_data = self._get_cart_items()
