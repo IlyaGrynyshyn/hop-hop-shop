@@ -18,8 +18,10 @@ def cart_session_response(cart_service):
     total_price = cart_service.get_total_price()
     total_items = cart_service.get_total_item()
     session_id = cart_service.get_session_id()
-    coupon_is_used = cart_service.coupon_is_used()
 
+    cart_service.handle_empty_cart()
+
+    coupon_is_used = cart_service.coupon_is_used()
     coupon = cart_service.get_coupon()
     if coupon:
         coupon_data = {
@@ -27,8 +29,6 @@ def cart_session_response(cart_service):
             "discount": coupon.discount,
         }
     else:
-        if total_items == 0:
-            cart_service.remove_coupon()
         coupon_data = None
         coupon_is_used = False
 

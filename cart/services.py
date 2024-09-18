@@ -3,6 +3,7 @@ from typing import Optional
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from rest_framework.exceptions import APIException
 
 from cart.models import Coupon, CartItem, Cart
 from shop.models import Product
@@ -22,7 +23,7 @@ class CartService:
             self.service = CartSessionService(self.request)
 
     def add(
-        self, product: Product, quantity: int = 1, update_quantity: bool = False
+            self, product: Product, quantity: int = 1, update_quantity: bool = False
     ) -> None:
         self.service.add(product, quantity, update_quantity)
 
@@ -56,6 +57,10 @@ class CartService:
     def get_session_id(self) -> int:
         return self.request.session.session_key
 
+    def handle_empty_cart(self) -> None:
+        if self.service.get_total_item() == 0:
+            self.service.remove_coupon()
+
     def __iter__(self):
         return iter(self.service)
 
@@ -79,7 +84,7 @@ class CartSessionService:
         self.coupon_id = self.session.get("coupon_id")
 
     def add(
-        self, product: Product, quantity: int = 1, update_quantity: bool = False
+            self, product: Product, quantity: int = 1, update_quantity: bool = False
     ) -> None:
         """
         Add a product to the cart or update its quantity
@@ -159,6 +164,9 @@ class CartSessionService:
         """
         Add a coupon to the cart
         """
+        if not self.cart.values():
+            raise APIException("You cannot use coupon on empty cart")
+
         self.session["coupon_id"] = coupon.id
         self.save()
 
@@ -225,7 +233,7 @@ class CartDBService:
             }
 
     def add(
-        self, product: Product, quantity: int = 1, update_quantity: bool = False
+            self, product: Product, quantity: int = 1, update_quantity: bool = False
     ) -> None:
         """
         Add a product to the user's cart in the database or update its quantity.
@@ -282,6 +290,10 @@ class CartDBService:
         """
         Apply a coupon to the user's cart in the database.
         """
+
+        if not self.cart.items:
+            raise APIException("You cannot use coupon on empty cart")
+
         self.cart.coupon = coupon
         self.cart.save()
 
