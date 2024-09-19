@@ -5,7 +5,6 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 
-
 urlpatterns = [
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
@@ -21,4 +20,5 @@ urlpatterns = [
     path("api/cart/", include("cart.urls")),
     path("api/checkout/", include("checkout.urls")),
     path("api/wishlist/", include("wishlist.urls")),
+    path("api/news/", include("news.urls"))
 ]
