@@ -3,7 +3,7 @@ from typing import Optional
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from rest_framework.exceptions import APIException
+from rest_framework.exceptions import ValidationError
 
 from cart.models import Coupon, CartItem, Cart
 from shop.models import Product
@@ -40,6 +40,7 @@ class CartService:
         self.service.add_coupon(coupon)
 
     def get_coupon(self) -> Optional[Coupon]:
+        self.handle_empty_cart()
         return self.service.get_coupon()
 
     def remove_coupon(self) -> None:
@@ -165,8 +166,9 @@ class CartSessionService:
         Add a coupon to the cart
         """
         if not self.cart.values():
-            raise APIException("You cannot use coupon on empty cart")
+            raise ValidationError("You cannot use coupon on empty cart")
 
+        self.coupon_id = coupon.id
         self.session["coupon_id"] = coupon.id
         self.save()
 
@@ -184,6 +186,7 @@ class CartSessionService:
         """
         Remove a coupon from the cart
         """
+        self.coupon_id = None
         self.session["coupon_id"] = {}
         self.save()
 
@@ -291,9 +294,10 @@ class CartDBService:
         Apply a coupon to the user's cart in the database.
         """
 
-        if not self.cart.items:
-            raise APIException("You cannot use coupon on empty cart")
+        if not self.cart.get_total_item():
+            raise ValidationError("You cannot use coupon on empty cart")
 
+        self.coupon_id = coupon.id
         self.cart.coupon = coupon
         self.cart.save()
 
@@ -301,6 +305,8 @@ class CartDBService:
         """
         Remove the applied coupon from the user's cart in the database.
         """
+
+        self.coupon_id = None
         self.cart.coupon = None
         self.cart.save()
 
