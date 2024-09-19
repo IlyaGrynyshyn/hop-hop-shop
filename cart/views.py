@@ -17,8 +17,18 @@ def cart_session_response(cart_service):
     cart_items = cart_service
     total_price = cart_service.get_total_price()
     total_items = cart_service.get_total_item()
-    coupon_is_used = cart_service.coupon_is_used()
     session_id = cart_service.get_session_id()
+
+    coupon_is_used = cart_service.coupon_is_used()
+    coupon = cart_service.get_coupon()
+    if coupon:
+        coupon_data = {
+            "name": coupon.code,
+            "discount": coupon.discount,
+        }
+    else:
+        coupon_data = None
+        coupon_is_used = False
 
     return {
         "products": cart_items,
@@ -26,6 +36,7 @@ def cart_session_response(cart_service):
         "subtotal_price": total_price,
         "total_price": total_price,
         "coupon_is_used": coupon_is_used,
+        "coupon": coupon_data,
         "sessionid": session_id
     }
 
@@ -135,7 +146,8 @@ class RemoveCouponView(APIView):
     def post(self, request):
         cart = CartService(request)
         cart.remove_coupon()
-        return Response(cart, status=status.HTTP_200_OK)
+        response_data = cart_session_response(cart)
+        return Response(response_data, status=status.HTTP_200_OK)
 
 
 @extend_schema(tags=["coupon"])
