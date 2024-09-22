@@ -20,7 +20,7 @@ def customer_image_file_path(instance, filename):
 class Customer(AbstractUser):
     username = None
     email = models.EmailField(_("email address"), unique=True)
-    phone_number = models.CharField(_("phone number"), max_length=17, blank=True, unique=True)
+    phone_number = models.CharField(_("phone number"), max_length=17, null=True, unique=True)
     avatar = models.ImageField(
         null=True,
         blank=True,
