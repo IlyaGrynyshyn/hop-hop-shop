@@ -31,6 +31,12 @@ class News(models.Model):
     def __str__(self):
         return self.title
 
+    def clean(self):
+        if self.type != NewsType.DEFAULT:
+            existing_news = News.objects.filter(type=self.type).exclude(id=self.id).exists()
+            if existing_news:
+                raise ValidationError(f"A news item with type '{self.type}' already exists.")
+
     def save(self, *args, **kwargs):
         if self.type != NewsType.DEFAULT:
             previous_news = News.objects.filter(type=self.type).exclude(pk=self.pk)
