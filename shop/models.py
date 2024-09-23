@@ -37,7 +37,7 @@ class Category(models.Model):
 
 
 class Product(models.Model):
-    name = models.CharField(max_length=100, db_index=True)
+    name = models.CharField(max_length=100, db_index=True, unique=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
     slug = models.SlugField(max_length=255, unique=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
