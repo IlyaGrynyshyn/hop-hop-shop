@@ -112,7 +112,33 @@ class OrderListSerializer(serializers.ModelSerializer):
         ]
 
 
-class OrderSerializer(serializers.ModelSerializer):
+class OrderSerializerMixin(serializers.ModelSerializer):
+    def get_subtotal_price(self, obj):
+        return sum(item.quantity * item.price for item in obj.items.all())
+
+    def get_discount(self, obj):
+        if obj.coupon:
+            return obj.coupon.discount
+
+    def get_total_price(self, obj):
+        discount = self.get_discount(obj)
+        subtotal_price = self.get_subtotal_price(obj)
+        if discount:
+            return subtotal_price - (subtotal_price * Decimal(discount / 100))
+        return subtotal_price
+
+    def create(self, validated_data):
+        validated_data.pop("card_information", None)
+        order = Order.objects.create(**validated_data)
+        return order
+
+    def update(self, instance, validated_data):
+        validated_data.pop("card_information", None)
+        instance = super().update(instance, validated_data)
+        return instance
+
+
+class OrderSerializer(OrderSerializerMixin):
     items = OrderItemSerializer(many=True, read_only=True)
     card_information = CardInformationSerializer(write_only=True)
     subtotal_price = serializers.SerializerMethodField()
@@ -149,32 +175,51 @@ class OrderSerializer(serializers.ModelSerializer):
             "coupon",
             "payment_id",
             "payment_type",
-            "payment_status",
             "total_price",
             "created_at",
             "updated_at",
         ]
 
-    def get_subtotal_price(self, obj):
-        return sum(item.quantity * item.price for item in obj.items.all())
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        request = self.context.get("request")
+        if request and request.method == "PATCH":
+            self.fields.pop("card_information", None)
 
-    def get_discount(self, obj):
-        if obj.coupon:
-            return obj.coupon.discount
 
-    def get_total_price(self, obj):
-        discount = self.get_discount(obj)
-        subtotal_price = self.get_subtotal_price(obj)
-        if discount:
-            return subtotal_price - (subtotal_price * Decimal(discount / 100))
-        return subtotal_price
+class AlternativeOrderSerializer(OrderSerializerMixin):
+    items = OrderItemSerializer(many=True, read_only=True)
+    subtotal_price = serializers.SerializerMethodField()
+    total_price = serializers.SerializerMethodField()
+    discount = serializers.SerializerMethodField()
 
-    def create(self, validated_data):
-        card_information = validated_data.pop("card_information", None)
-        order = Order.objects.create(**validated_data)
-        return order
-
-    def update(self, instance, validated_data):
-        card_information = validated_data.pop("card_information", None)
-        instance = super().update(instance, validated_data)
-        return instance
+    class Meta:
+        model = Order
+        fields = [
+            "id",
+            "created_at",
+            "customer",
+            "first_name",
+            "last_name",
+            "email",
+            "phone",
+            "shipping_country",
+            "shipping_city",
+            "shipping_address",
+            "shipping_postcode",
+            "payment_type",
+            "payment_status",
+            "order_status",
+            "items",
+            "subtotal_price",
+            "total_price",
+            "coupon",
+            "discount",
+        ]
+        read_only_fields = [
+            "customer",
+            "coupon",
+            "total_price",
+            "created_at",
+            "updated_at",
+        ]
