@@ -124,6 +124,8 @@ class ProductCreateUpdateSerializer(serializers.ModelSerializer):
         source="product_attributes", required=False
     )
     slug = serializers.CharField(read_only=True)
+    SKU = serializers.CharField(required=False)
+
 
     class Meta:
         model = Product
