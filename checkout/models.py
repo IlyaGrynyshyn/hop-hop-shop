@@ -6,18 +6,23 @@ from shop.models import Product
 
 
 class PaymentStatus(models.TextChoices):
-    STATUS_PENDING = "Pending"
-    STATUS_PAID = "Paid"
-    STATUS_CANCELED = "Canceled"
-    STATUS_FAILED = "Failed"
+    STATUS_PENDING = "pending", "Pending"
+    STATUS_PAID = "paid", "Paid"
+    STATUS_CANCELED = "canceled", "Canceled"
+    STATUS_FAILED = "failed", "Failed"
 
 
 class OrderStatus(models.TextChoices):
-    STATUS_PENDING = "Pending"
-    STATUS_IN_PROGRESS = "In Progress"
-    STATUS_IN_TRANSIT = "In Transit"
-    STATUS_DELIVERED = "Delivered"
-    STATUS_CANCELED = "Canceled"
+    STATUS_PENDING = "pending", "Pending"
+    STATUS_IN_PROGRESS = "in_progress", "In Progress"
+    STATUS_IN_TRANSIT = "in_transit", "In Transit"
+    STATUS_DELIVERED = "delivered", "Delivered"
+    STATUS_CANCELED = "canceled", "Canceled"
+
+
+class PaymentType(models.TextChoices):
+    CARD = 'card', 'Card'
+    CRYPTO = 'crypto', 'Cryptocurrency'
 
 
 class Order(models.Model):
@@ -26,14 +31,14 @@ class Order(models.Model):
     )
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    email = models.EmailField(blank=True, null=True)
+    email = models.EmailField()
     phone = models.CharField(max_length=50)
     shipping_address = models.CharField(max_length=255)
     shipping_city = models.CharField(max_length=255)
     shipping_postcode = models.CharField(max_length=20)
     shipping_country = models.CharField(max_length=100)
     payment_id = models.CharField(max_length=100, null=True, blank=True)
-    payment_type = models.CharField(max_length=100, null=True, blank=True)
+    payment_type = models.CharField(max_length=20, choices=PaymentType.choices)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     payment_status = models.CharField(
