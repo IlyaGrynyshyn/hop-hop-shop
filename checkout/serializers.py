@@ -148,7 +148,6 @@ class OrderSerializer(OrderSerializerMixin):
     class Meta:
         model = Order
         fields = [
-            "id",
             "created_at",
             "customer",
             "first_name",
@@ -195,7 +194,6 @@ class AlternativeOrderSerializer(OrderSerializerMixin):
     class Meta:
         model = Order
         fields = [
-            "id",
             "created_at",
             "customer",
             "first_name",
