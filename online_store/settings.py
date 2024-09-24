@@ -108,7 +108,7 @@ DATABASES = {
     }
 }
 
-if not bool(int(os.getenv("DEBUG", "0"))):
+if not bool(int(os.getenv("POSTGRES", "0"))):
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
