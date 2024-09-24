@@ -178,12 +178,6 @@ class OrderSerializer(OrderSerializerMixin):
             "updated_at",
         ]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        request = self.context.get("request")
-        if request and request.method == "PATCH":
-            self.fields.pop("card_information", None)
-
 
 class AlternativeOrderSerializer(OrderSerializerMixin):
     items = OrderItemSerializer(many=True, read_only=True)
