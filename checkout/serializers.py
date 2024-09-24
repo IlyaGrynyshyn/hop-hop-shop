@@ -174,7 +174,6 @@ class OrderSerializer(OrderSerializerMixin):
             "customer",
             "coupon",
             "payment_id",
-            "payment_type",
             "total_price",
             "created_at",
             "updated_at",

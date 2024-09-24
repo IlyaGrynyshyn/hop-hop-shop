@@ -38,7 +38,7 @@ class Order(models.Model):
     shipping_postcode = models.CharField(max_length=20)
     shipping_country = models.CharField(max_length=100)
     payment_id = models.CharField(max_length=100, null=True, blank=True)
-    payment_type = models.CharField(max_length=20, choices=PaymentType.choices)
+    payment_type = models.CharField(max_length=20, choices=PaymentType.choices, default=PaymentType.CARD)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     payment_status = models.CharField(
