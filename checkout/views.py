@@ -35,10 +35,8 @@ class CheckoutView(generics.CreateAPIView):
 
             if response.status_code == status.HTTP_200_OK:
                 payment_id = response.data.get("payment_id")
-                order_data.order.paid = True
                 order_data.order.payment_status = "paid"
                 order_data.order.payment_id = payment_id
-                order_data.order.payment_type = "card"
                 order_data.order.save()
                 # send_notification_mail.delay(user_email=order_data.order.email)
                 order_service.clear_cart()
