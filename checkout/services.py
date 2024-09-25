@@ -43,7 +43,8 @@ class OrderService:
             raise CartEmptyException
 
         card_information = validated_data.pop("card_information", None)
-        validated_data["coupon_id"] = self.cart_service.coupon_id
+        coupon_id = self.cart_service.coupon_id if self.cart_service.coupon_id else None
+        validated_data["coupon_id"] = coupon_id
 
         customer = self.request.user if isinstance(self.cart_service, CartDBService) else None
 
