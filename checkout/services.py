@@ -60,9 +60,6 @@ class OrderService:
         return self.cart_service.get_total_price() > 0
 
     def _create_order_instance(self, validated_data: dict, customer: get_user_model() = None) -> Order:
-        for el in validated_data:
-            print(f"{el} (type={type(el)}): {validated_data[el]} (type = {type(validated_data[el])})")
-
         return Order.objects.create(**validated_data, customer=customer)
 
     def _create_order_items(self, order: Order) -> list:
