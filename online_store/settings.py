@@ -52,13 +52,15 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "cloudinary_storage",
     "cloudinary",
+
     "authentication",
     "shop",
     "email_subscription",
     "cart",
     "wishlist",
     "checkout",
-    "news"
+    "news",
+    "contact_us"
 ]
 
 
