@@ -1,5 +1,3 @@
-from django.urls import path
-
 from rest_framework import routers
 
 from contact_us.views import ContactUsViewSet

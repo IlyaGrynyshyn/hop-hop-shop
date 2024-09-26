@@ -8,4 +8,5 @@ class ContactUsSerializer(serializers.ModelSerializer):
         model = Contact
         fields = '__all__'
 
-        read_only_fields = ['id', 'created_at']
+        read_only_fields = ('id',)
+        write_only_fields = ('created_at',)

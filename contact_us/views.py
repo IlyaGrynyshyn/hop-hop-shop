@@ -1,6 +1,6 @@
 from drf_spectacular.utils import extend_schema
-from rest_framework import viewsets, generics
-from rest_framework.permissions import IsAdminUser
+from rest_framework import viewsets
+from rest_framework.permissions import IsAdminUser, AllowAny
 
 from contact_us.models import Contact
 from contact_us.serializers import ContactUsSerializer
@@ -11,9 +11,13 @@ from utils.pagination import Pagination
 class ContactUsViewSet(viewsets.ModelViewSet):
     queryset = Contact.objects.all()
     pagination_class = Pagination
-    permission_classes = (IsAdminUser,)
     serializer_class = ContactUsSerializer
     http_method_names = ['get', 'post']
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return [IsAdminUser()]
+        return [AllowAny()]
 
     @extend_schema(
         summary="Retrieve a list of contact us messages",
