@@ -2,11 +2,9 @@ import datetime
 from decimal import Decimal
 
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
-from cart.models import Coupon
 from checkout.models import Order, OrderItem
-from shop.models import Product
-from shop.serializers import ProductSerializer
 
 
 class CardInformationSerializer(serializers.Serializer):
@@ -112,35 +110,9 @@ class OrderListSerializer(serializers.ModelSerializer):
         ]
 
 
-class OrderSerializerMixin(serializers.ModelSerializer):
-    def get_subtotal_price(self, obj):
-        return sum(item.quantity * item.price for item in obj.items.all())
-
-    def get_discount(self, obj):
-        if obj.coupon:
-            return obj.coupon.discount
-
-    def get_total_price(self, obj):
-        discount = self.get_discount(obj)
-        subtotal_price = self.get_subtotal_price(obj)
-        if discount:
-            return subtotal_price - (subtotal_price * Decimal(discount / 100))
-        return subtotal_price
-
-    def create(self, validated_data):
-        validated_data.pop("card_information", None)
-        order = Order.objects.create(**validated_data)
-        return order
-
-    def update(self, instance, validated_data):
-        validated_data.pop("card_information", None)
-        instance = super().update(instance, validated_data)
-        return instance
-
-
-class OrderSerializer(OrderSerializerMixin):
+class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
-    card_information = CardInformationSerializer(write_only=True)
+    card_information = CardInformationSerializer(write_only=True, required=False)
     subtotal_price = serializers.SerializerMethodField()
     total_price = serializers.SerializerMethodField()
     discount = serializers.SerializerMethodField()
@@ -173,44 +145,38 @@ class OrderSerializer(OrderSerializerMixin):
             "customer",
             "coupon",
             "payment_id",
-            "total_price",
-            "created_at",
-            "updated_at",
-        ]
-
-
-class AlternativeOrderSerializer(OrderSerializerMixin):
-    items = OrderItemSerializer(many=True, read_only=True)
-    subtotal_price = serializers.SerializerMethodField()
-    total_price = serializers.SerializerMethodField()
-    discount = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Order
-        fields = [
-            "created_at",
-            "customer",
-            "first_name",
-            "last_name",
-            "email",
-            "phone",
-            "shipping_country",
-            "shipping_city",
-            "shipping_address",
-            "shipping_postcode",
-            "payment_type",
             "payment_status",
             "order_status",
-            "items",
-            "subtotal_price",
-            "total_price",
-            "coupon",
-            "discount",
-        ]
-        read_only_fields = [
-            "customer",
-            "coupon",
             "total_price",
             "created_at",
             "updated_at",
         ]
+
+    def validate(self, attrs):
+        if attrs.get("payment_type", None) == "card" and not attrs.get("card_information", None):
+            raise ValidationError("Card information is required for card payment type.")
+        return attrs
+
+    def get_subtotal_price(self, obj):
+        return sum(item.quantity * item.price for item in obj.items.all())
+
+    def get_discount(self, obj):
+        if obj.coupon:
+            return obj.coupon.discount
+
+    def get_total_price(self, obj):
+        discount = self.get_discount(obj)
+        subtotal_price = self.get_subtotal_price(obj)
+        if discount:
+            return subtotal_price - (subtotal_price * Decimal(discount / 100))
+        return subtotal_price
+
+    def create(self, validated_data):
+        validated_data.pop("card_information", None)
+        order = Order.objects.create(**validated_data)
+        return order
+
+    def update(self, instance, validated_data):
+        validated_data.pop("card_information", None)
+        instance = super().update(instance, validated_data)
+        return instance

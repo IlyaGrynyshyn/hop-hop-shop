@@ -1,14 +1,14 @@
 from drf_spectacular.utils import extend_schema
 from rest_framework import status, generics, viewsets
 from rest_framework.exceptions import ValidationError
-from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
 from checkout.filters import OrderFilter
 from checkout.tasks.order_notification import send_notification_mail
 
 from checkout.models import Order
-from checkout.serializers import OrderSerializer, OrderListSerializer, AlternativeOrderSerializer
+from checkout.serializers import OrderSerializer, OrderListSerializer
 from checkout.services import (
     OrderService,
     PaymentService,
@@ -16,76 +16,49 @@ from checkout.services import (
 from utils.pagination import Pagination
 
 
-@extend_schema(tags=["checkout"], summary="Checkout for card payment method")
+@extend_schema(tags=["checkout"], summary="Checkout for specific payment method")
 class CheckoutView(generics.CreateAPIView):
     serializer_class = OrderSerializer
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            order_service = OrderService(request)
-            payment_service = PaymentService()
 
+        if serializer.is_valid(raise_exception=True):
+            order_service = OrderService(request)
             order_data = order_service.create_order(serializer.validated_data)
             serializer.validated_data["order_id"] = order_data.order.id
 
-            response = payment_service.stripe_card_payment(
-                order_data.card_information, order_data.total_price
-            )
+            payment_id = None
+            if serializer.validated_data.get('payment_type', None) == 'card':
+                payment_service = PaymentService()
 
-            if response.status_code == status.HTTP_200_OK:
-                payment_id = response.data.get("payment_id")
-                order_data.order.payment_status = "paid"
-                order_data.order.payment_id = payment_id
-                order_data.order.save()
-                # send_notification_mail.delay(user_email=order_data.order.email)
-                order_service.clear_cart()
-
-                return Response(
-                    {
-                        "order": serializer.validated_data,
-                        "payment_id": payment_id,
-                        "message": "Order created and payment successful",
-                        "sessionid": request.session.get("session_key", None),
-                    },
-                    status=status.HTTP_201_CREATED,
+                response = payment_service.stripe_card_payment(
+                    order_data.card_information, order_data.total_price
                 )
-            else:
-                order_data.order.payment_status = "Failed"
-                return response
-        raise ValidationError(serializer.errors)
 
+                if response.status_code != status.HTTP_200_OK:
+                    order_data.order.payment_status = "Failed"
+                    return response
+                else:
+                    payment_id = response.data.get("payment_id")
 
-@extend_schema(tags=["checkout"], summary="Checkout for alternative payment methods")
-class AlternativeCheckoutView(generics.CreateAPIView):
-    serializer_class = AlternativeOrderSerializer
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            order_service = OrderService(request)
-
-            order_data = order_service.create_order(serializer.validated_data)
-            serializer.validated_data["order_id"] = order_data.order.id
-
-            order_data.order.paid = True
             order_data.order.payment_status = "pending"
-            order_data.order.payment_type = serializer.validated_data["payment_type"]
+            order_data.order.payment_id = payment_id
             order_data.order.save()
+
+            # send_notification_mail.delay(user_email=order_data.order.email)
 
             order_service.clear_cart()
 
             return Response(
                 {
                     "order": serializer.validated_data,
+                    "payment_id": payment_id,
                     "message": "Order created and payment successful",
                     "sessionid": request.session.get("session_key", None),
                 },
                 status=status.HTTP_201_CREATED,
             )
-        else:
-            raise ValidationError(serializer.errors)
-
 
 
 @extend_schema(tags=["orders"], summary="Get all orders")
