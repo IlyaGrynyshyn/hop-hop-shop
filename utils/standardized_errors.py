@@ -10,13 +10,12 @@ class MyExceptionFormatter(ExceptionFormatter):
             if (error_response.type == "validation_error"
                 and error.attr != "non_field_errors"
                 and error.attr is not None
-                and error.detail.startswith('This'))
+                and 'this' in error.detail.lower())
         ]
 
         if required_field_errors:
             required_fields = ', '.join([error.attr for error in required_field_errors])
-            field_term = "field is" if len(required_field_errors) == 1 else "fields are"
-            error_message = f"{required_fields} {field_term} required"
+            error_message = f"{required_fields}: {required_field_errors[0].detail}"
         else:
             error_message = error_response.errors[0].detail
 
