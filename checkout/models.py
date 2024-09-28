@@ -18,6 +18,7 @@ class OrderStatus(models.TextChoices):
     STATUS_IN_TRANSIT = "In Transit"
     STATUS_DELIVERED = "Delivered"
     STATUS_CANCELED = "Canceled"
+    STATUS_RETURNED = "Returned"
 
 
 class Order(models.Model):
@@ -37,7 +38,9 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     payment_status = models.CharField(
-        max_length=50, choices=PaymentStatus.choices, default=PaymentStatus.STATUS_PENDING
+        max_length=50,
+        choices=PaymentStatus.choices,
+        default=PaymentStatus.STATUS_PENDING,
     )
     order_status = models.CharField(
         max_length=50, choices=OrderStatus.choices, default=OrderStatus.STATUS_PENDING

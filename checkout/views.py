@@ -1,18 +1,23 @@
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import status, generics, viewsets
 from rest_framework.exceptions import ValidationError
-from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from checkout.filters import OrderFilter
-from checkout.tasks.order_notification import send_notification_mail
-
 from checkout.models import Order
-from checkout.serializers import OrderSerializer, OrderListSerializer
+from checkout.serializers import (
+    OrderSerializer,
+    OrderListSerializer,
+    DashboardStatisticSerializer,
+)
 from checkout.services import (
     OrderService,
     PaymentService,
+    DashboardStatisticService,
 )
+from checkout.tasks.order_notification import send_notification_mail
 from utils.pagination import Pagination
 
 
@@ -112,3 +117,31 @@ class ProfileOrder(viewsets.ReadOnlyModelViewSet):
 
     def get_object(self):
         return self.request.user
+
+
+class OrderStatisticsView(APIView):
+    @extend_schema(
+        summary="Retrieve order statistics",
+        description="Returns the order statistics for a specified period (in days), including total orders, active orders, completed orders, and returned orders.",
+        parameters=[
+            OpenApiParameter(
+                name="period",
+                description="The number of days to calculate statistics for",
+                required=True,
+                type=int,
+            )
+        ],
+    )
+    def get(self, request, *args, **kwargs):
+        period = request.query_params.get("period", 30)
+        try:
+            period = int(period)
+        except ValueError:
+            return Response(
+                {"error": "Invalid 'days' parameter. It should be an integer."},
+                status=400,
+            )
+        service = DashboardStatisticService(period=period)
+        statistics = service.get_order_statistics()
+        serializer = DashboardStatisticSerializer(statistics)
+        return Response(serializer.data)

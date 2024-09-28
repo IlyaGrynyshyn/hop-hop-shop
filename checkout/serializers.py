@@ -3,10 +3,8 @@ from decimal import Decimal
 
 from rest_framework import serializers
 
-from cart.models import Coupon
 from checkout.models import Order, OrderItem
-from shop.models import Product
-from shop.serializers import ProductSerializer
+from checkout.services import DashboardStatistic
 
 
 class CardInformationSerializer(serializers.Serializer):
@@ -178,3 +176,13 @@ class OrderSerializer(serializers.ModelSerializer):
         card_information = validated_data.pop("card_information", None)
         instance = super().update(instance, validated_data)
         return instance
+
+
+class DashboardStatisticSerializer(serializers.Serializer):
+    total_orders = serializers.IntegerField()
+    active_orders = serializers.IntegerField()
+    completed_orders = serializers.IntegerField()
+    returned_orders = serializers.IntegerField()
+
+    def create(self, validated_data):
+        return DashboardStatistic(**validated_data)

@@ -1,10 +1,14 @@
+from dataclasses import dataclass
+from datetime import timedelta
+
 import stripe
 from django.conf import settings
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.response import Response
 
 from cart.services import CartSessionService
-from checkout.models import Order, OrderItem
+from checkout.models import Order, OrderItem, OrderStatus
 from shop.models import Product
 from utils.custom_exceptions import (
     CartEmptyException,
@@ -19,6 +23,7 @@ from utils.custom_exceptions import (
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
+@dataclass
 class OrderData:
     def __init__(
         self, order=None, order_items=None, card_information=None, total_price=0
@@ -115,3 +120,40 @@ class PaymentService:
 
         except stripe.error.StripeError as e:
             raise StripeGeneralError(detail=str(e))
+
+
+@dataclass
+class DashboardStatistic:
+    total_orders: int
+    active_orders: int
+    completed_orders: int
+    returned_orders: int
+
+
+class DashboardStatisticService:
+    def __init__(self, period: int):
+        self.period = period
+
+    def get_order_statistics(self) -> DashboardStatistic:
+        start_date = timezone.now() - timedelta(days=self.period)
+        orders = Order.objects.filter(created_at__gte=start_date)
+        total_orders = orders.count()
+        active_orders = orders.filter(
+            order_status__in=(
+                OrderStatus.STATUS_PENDING,
+                OrderStatus.STATUS_IN_PROGRESS,
+                OrderStatus.STATUS_IN_TRANSIT,
+            )
+        ).count()
+        completed_orders = orders.filter(
+            order_status=OrderStatus.STATUS_DELIVERED
+        ).count()
+        returned_orders = orders.filter(
+            order_status=OrderStatus.STATUS_RETURNED
+        ).count()
+        return DashboardStatistic(
+            total_orders=total_orders,
+            active_orders=active_orders,
+            completed_orders=completed_orders,
+            returned_orders=returned_orders,
+        )
