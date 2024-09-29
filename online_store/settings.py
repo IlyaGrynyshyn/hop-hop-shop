@@ -52,12 +52,15 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "cloudinary_storage",
     "cloudinary",
+
     "authentication",
     "shop",
     "email_subscription",
     "cart",
     "wishlist",
     "checkout",
+    "news",
+    "contact_us"
 ]
 
 
@@ -107,7 +110,7 @@ DATABASES = {
     }
 }
 
-if not bool(int(os.getenv("DEBUG", "0"))):
+if not bool(int(os.getenv("POSTGRES", "0"))):
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",

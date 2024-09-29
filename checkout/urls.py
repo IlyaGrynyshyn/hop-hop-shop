@@ -7,15 +7,14 @@ from checkout.views import (
     ProfileOrder,
     OrderStatisticsView,
 )
+from checkout.views import CheckoutView, OrderListView
 
 router = routers.DefaultRouter()
 
 router.register(r"orders", OrderListView, basename="order-list")
-router.register(r"profile", ProfileOrder, basename="profile-order")
-
-urlpatterns = [
     path("checkout/", CheckoutView.as_view(), name="checkout"),
     path("order-statistics/", OrderStatisticsView.as_view(), name="order-statistics"),
+    path("", CheckoutView.as_view(), name="checkout")
 ]
 
 urlpatterns += router.urls

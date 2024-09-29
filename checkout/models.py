@@ -6,10 +6,10 @@ from shop.models import Product
 
 
 class PaymentStatus(models.TextChoices):
-    STATUS_PENDING = "Pending"
-    STATUS_PAID = "Paid"
-    STATUS_CANCELED = "Canceled"
-    STATUS_FAILED = "Failed"
+    STATUS_PENDING = "pending", "Pending"
+    STATUS_PAID = "paid", "Paid"
+    STATUS_CANCELED = "canceled", "Canceled"
+    STATUS_FAILED = "failed", "Failed"
 
 
 class OrderStatus(models.TextChoices):
@@ -20,6 +20,11 @@ class OrderStatus(models.TextChoices):
     STATUS_CANCELED = "Canceled"
     STATUS_RETURNED = "Returned"
 
+class PaymentType(models.TextChoices):
+    CARD = 'card', 'Card'
+    CRYPTO = 'crypto', 'Cryptocurrency'
+
+
 
 class Order(models.Model):
     customer = models.ForeignKey(
@@ -27,14 +32,14 @@ class Order(models.Model):
     )
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    email = models.EmailField(blank=True, null=True)
+    email = models.EmailField()
     phone = models.CharField(max_length=50)
     shipping_address = models.CharField(max_length=255)
     shipping_city = models.CharField(max_length=255)
     shipping_postcode = models.CharField(max_length=20)
     shipping_country = models.CharField(max_length=100)
     payment_id = models.CharField(max_length=100, null=True, blank=True)
-    payment_type = models.CharField(max_length=100, null=True, blank=True)
+    payment_type = models.CharField(max_length=20, choices=PaymentType.choices)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     payment_status = models.CharField(
@@ -56,7 +61,7 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name="items", on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.DO_NOTHING)
+    product = models.ForeignKey(Product, null=True, on_delete=models.SET_NULL)
     quantity = models.PositiveIntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
 

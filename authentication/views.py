@@ -1,7 +1,5 @@
 from django.conf import settings
 from django.contrib.auth import authenticate
-from django.contrib.auth import get_user_model
-from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import generics, viewsets
 from rest_framework import status
@@ -16,8 +14,10 @@ from authentication.models import Customer
 from authentication.serializers import (
     CustomerSerializer,
     LoginSerializer, CustomerAdminSerializer,
-    ResetPasswordSerializer, ResetPasswordRequestSerializer,
+    ResetPasswordSerializer, ResetPasswordRequestSerializer, RegistrationSerializer,
 )
+from checkout.models import Order
+from checkout.serializers import OrderSerializer
 from utils.custom_exceptions import InvalidCredentialsError
 from utils.pagination import Pagination
 
@@ -32,7 +32,7 @@ class CreateCustomerView(generics.CreateAPIView):
 
     """
 
-    serializer_class = CustomerSerializer
+    serializer_class = RegistrationSerializer
 
     def create(self, request, *args, **kwargs) -> Response:
         """
@@ -140,7 +140,7 @@ class CustomersListView(viewsets.ModelViewSet):
     pagination_class = Pagination
     permission_classes = (IsAdminUser,)
     filter_backends = [SearchFilter, ]
-    search_fields = ['first_name', ]
+    search_fields = ['first_name', 'email']
     http_method_names = ["get", "patch"]
 
     @extend_schema(
@@ -227,3 +227,16 @@ class LogoutView(APIView):
             return response
         except Exception:
             raise ValueError
+
+
+class ProfileOrder(viewsets.ReadOnlyModelViewSet):
+    """
+    API view for retrieving orders that belong to the authenticated user
+    """
+    permission_classes = (IsAuthenticated,)
+    pagination_class = Pagination
+    serializer_class = OrderSerializer
+
+    def get_queryset(self):
+        return Order.objects.filter(customer=self.request.user).select_related("customer")
+
