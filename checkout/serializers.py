@@ -5,6 +5,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from checkout.models import Order, OrderItem
+from checkout.services import DashboardStatistic
 
 
 class CardInformationSerializer(serializers.Serializer):
@@ -180,3 +181,13 @@ class OrderSerializer(serializers.ModelSerializer):
         validated_data.pop("card_information", None)
         instance = super().update(instance, validated_data)
         return instance
+
+
+class DashboardStatisticSerializer(serializers.Serializer):
+    total_orders = serializers.IntegerField()
+    active_orders = serializers.IntegerField()
+    completed_orders = serializers.IntegerField()
+    returned_orders = serializers.IntegerField()
+
+    def create(self, validated_data):
+        return DashboardStatistic(**validated_data)
