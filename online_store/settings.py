@@ -110,7 +110,7 @@ DATABASES = {
     }
 }
 
-if not bool(int(os.getenv("POSTGRES", "0"))):
+if not bool(int(os.getenv("DEBUG", "0"))):
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
@@ -212,6 +212,7 @@ DRF_STANDARDIZED_ERRORS = {
         "utils.custom_exceptions.StripeGeneralError": "drf_standardized_errors.exceptions.BaseAPIException",
         "utils.custom_exceptions.ProductAlreadyExistException": "drf_standardized_errors.exceptions.BaseAPIException",
         "utils.custom_exceptions.ProductNotExistException": "drf_standardized_errors.exceptions.BaseAPIException",
+        "utils.custom_exceptions.CouponNotExistException": "drf_standardized_errors.exceptions.BaseAPIException",
         "utils.custom_exceptions.InvalidCredentialsError": "drf_standardized_errors.exceptions.BaseAPIException",
     },
 }

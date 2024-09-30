@@ -2,10 +2,10 @@ import datetime
 from decimal import Decimal
 
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
-from cart.models import Coupon
 from checkout.models import Order, OrderItem
-from shop.models import Product
+from checkout.services import DashboardStatistic
 from shop.serializers import ProductSerializer
 
 
@@ -62,32 +62,16 @@ class CardInformationSerializer(serializers.Serializer):
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
-    product_id = serializers.SerializerMethodField()
-    product_name = serializers.SerializerMethodField()
-    product_price = serializers.SerializerMethodField()
-    total_price = serializers.SerializerMethodField()
+    product = ProductSerializer()
 
     class Meta:
         model = OrderItem
         fields = [
-            "product_id",
-            "product_name",
-            "product_price",
+            "order",
+            "product",
             "quantity",
-            "total_price",
+            "price",
         ]
-
-    def get_product_id(self, obj):
-        return obj.product_id
-
-    def get_product_name(self, obj):
-        return obj.product.name
-
-    def get_product_price(self, obj):
-        return float(obj.price)
-
-    def get_total_price(self, obj):
-        return obj.price * obj.quantity
 
 
 class OrderListSerializer(serializers.ModelSerializer):
@@ -112,7 +96,54 @@ class OrderListSerializer(serializers.ModelSerializer):
         ]
 
 
-class OrderSerializerMixin(serializers.ModelSerializer):
+class OrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many=True, read_only=True)
+    card_information = CardInformationSerializer(write_only=True, required=False)
+    subtotal_price = serializers.SerializerMethodField()
+    total_price = serializers.SerializerMethodField()
+    discount = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Order
+        fields = [
+            "id",
+            "customer",
+            "first_name",
+            "last_name",
+            "email",
+            "phone",
+            "shipping_country",
+            "shipping_city",
+            "shipping_address",
+            "shipping_postcode",
+            "payment_id",
+            "payment_type",
+            "payment_status",
+            "order_status",
+            "items",
+            "subtotal_price",
+            "total_price",
+            "coupon",
+            "discount",
+            "card_information",
+        ]
+        read_only_fields = [
+            "customer",
+            "coupon",
+            "payment_id",
+            "payment_status",
+            "order_status",
+            "total_price",
+            "created_at",
+            "updated_at",
+            "created_at"
+        ]
+
+    def validate(self, attrs):
+        if attrs.get("payment_type", None) == "card" and not attrs.get("card_information", None):
+            raise ValidationError("Card information is required for card payment type.")
+        return attrs
+
     def get_subtotal_price(self, obj):
         return sum(item.quantity * item.price for item in obj.items.all())
 
@@ -138,79 +169,11 @@ class OrderSerializerMixin(serializers.ModelSerializer):
         return instance
 
 
-class OrderSerializer(OrderSerializerMixin):
-    items = OrderItemSerializer(many=True, read_only=True)
-    card_information = CardInformationSerializer(write_only=True)
-    subtotal_price = serializers.SerializerMethodField()
-    total_price = serializers.SerializerMethodField()
-    discount = serializers.SerializerMethodField()
+class DashboardStatisticSerializer(serializers.Serializer):
+    total_orders = serializers.IntegerField()
+    active_orders = serializers.IntegerField()
+    completed_orders = serializers.IntegerField()
+    returned_orders = serializers.IntegerField()
 
-    class Meta:
-        model = Order
-        fields = [
-            "created_at",
-            "customer",
-            "first_name",
-            "last_name",
-            "email",
-            "phone",
-            "shipping_country",
-            "shipping_city",
-            "shipping_address",
-            "shipping_postcode",
-            "payment_id",
-            "payment_type",
-            "payment_status",
-            "order_status",
-            "items",
-            "subtotal_price",
-            "total_price",
-            "coupon",
-            "discount",
-            "card_information",
-        ]
-        read_only_fields = [
-            "customer",
-            "coupon",
-            "payment_id",
-            "total_price",
-            "created_at",
-            "updated_at",
-        ]
-
-
-class AlternativeOrderSerializer(OrderSerializerMixin):
-    items = OrderItemSerializer(many=True, read_only=True)
-    subtotal_price = serializers.SerializerMethodField()
-    total_price = serializers.SerializerMethodField()
-    discount = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Order
-        fields = [
-            "created_at",
-            "customer",
-            "first_name",
-            "last_name",
-            "email",
-            "phone",
-            "shipping_country",
-            "shipping_city",
-            "shipping_address",
-            "shipping_postcode",
-            "payment_type",
-            "payment_status",
-            "order_status",
-            "items",
-            "subtotal_price",
-            "total_price",
-            "coupon",
-            "discount",
-        ]
-        read_only_fields = [
-            "customer",
-            "coupon",
-            "total_price",
-            "created_at",
-            "updated_at",
-        ]
+    def create(self, validated_data):
+        return DashboardStatistic(**validated_data)

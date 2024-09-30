@@ -13,16 +13,17 @@ class PaymentStatus(models.TextChoices):
 
 
 class OrderStatus(models.TextChoices):
-    STATUS_PENDING = "pending", "Pending"
-    STATUS_IN_PROGRESS = "in_progress", "In Progress"
-    STATUS_IN_TRANSIT = "in_transit", "In Transit"
-    STATUS_DELIVERED = "delivered", "Delivered"
-    STATUS_CANCELED = "canceled", "Canceled"
-
+    STATUS_PENDING = "Pending"
+    STATUS_IN_PROGRESS = "In Progress"
+    STATUS_IN_TRANSIT = "In Transit"
+    STATUS_DELIVERED = "Delivered"
+    STATUS_CANCELED = "Canceled"
+    STATUS_RETURNED = "Returned"
 
 class PaymentType(models.TextChoices):
     CARD = 'card', 'Card'
     CRYPTO = 'crypto', 'Cryptocurrency'
+
 
 
 class Order(models.Model):
@@ -38,11 +39,13 @@ class Order(models.Model):
     shipping_postcode = models.CharField(max_length=20)
     shipping_country = models.CharField(max_length=100)
     payment_id = models.CharField(max_length=100, null=True, blank=True)
-    payment_type = models.CharField(max_length=20, choices=PaymentType.choices, default=PaymentType.CARD)
+    payment_type = models.CharField(max_length=20, choices=PaymentType.choices)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     payment_status = models.CharField(
-        max_length=50, choices=PaymentStatus.choices, default=PaymentStatus.STATUS_PENDING
+        max_length=50,
+        choices=PaymentStatus.choices,
+        default=PaymentStatus.STATUS_PENDING,
     )
     order_status = models.CharField(
         max_length=50, choices=OrderStatus.choices, default=OrderStatus.STATUS_PENDING
