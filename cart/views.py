@@ -8,7 +8,7 @@ from cart.serializers import CouponSerializer, UseCouponSerializer, CartSerializ
 from shop.models import Product
 from cart.services import CartService
 from utils.custom_exceptions import (
-    ProductNotExistException,
+    ProductNotExistException, CouponNotExistException,
 )
 from utils.pagination import Pagination
 
@@ -129,7 +129,7 @@ class UseCouponView(APIView):
         try:
             coupon = Coupon.objects.get(code=code, active=True)
         except Coupon.DoesNotExist:
-            raise ProductNotExistException
+            raise CouponNotExistException
 
         cart = CartService(request)
         cart.add_coupon(coupon)
