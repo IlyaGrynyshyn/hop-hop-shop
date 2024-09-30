@@ -6,6 +6,7 @@ from rest_framework.exceptions import ValidationError
 
 from checkout.models import Order, OrderItem
 from checkout.services import DashboardStatistic
+from shop.serializers import ProductSerializer
 
 
 class CardInformationSerializer(serializers.Serializer):
@@ -61,32 +62,16 @@ class CardInformationSerializer(serializers.Serializer):
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
-    product_id = serializers.SerializerMethodField()
-    product_name = serializers.SerializerMethodField()
-    product_price = serializers.SerializerMethodField()
-    total_price = serializers.SerializerMethodField()
+    product = ProductSerializer()
 
     class Meta:
         model = OrderItem
         fields = [
-            "product_id",
-            "product_name",
-            "product_price",
+            "order",
+            "product",
             "quantity",
-            "total_price",
+            "price",
         ]
-
-    def get_product_id(self, obj):
-        return obj.product_id
-
-    def get_product_name(self, obj):
-        return obj.product.name
-
-    def get_product_price(self, obj):
-        return float(obj.price)
-
-    def get_total_price(self, obj):
-        return obj.price * obj.quantity
 
 
 class OrderListSerializer(serializers.ModelSerializer):
@@ -121,7 +106,7 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = [
-            "created_at",
+            "id",
             "customer",
             "first_name",
             "last_name",
@@ -151,6 +136,7 @@ class OrderSerializer(serializers.ModelSerializer):
             "total_price",
             "created_at",
             "updated_at",
+            "created_at"
         ]
 
     def validate(self, attrs):
