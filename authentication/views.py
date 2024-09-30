@@ -229,6 +229,7 @@ class LogoutView(APIView):
             raise ValueError
 
 
+@extend_schema(tags=["customer data"])
 class ProfileOrder(viewsets.ReadOnlyModelViewSet):
     """
     API view for retrieving orders that belong to the authenticated user
