@@ -1,4 +1,5 @@
-from drf_spectacular.utils import extend_schema
+from rest_framework.filters import OrderingFilter
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import status, generics, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -154,12 +155,22 @@ class RemoveCouponView(APIView):
 class CouponView(viewsets.ModelViewSet):
     queryset = Coupon.objects.all()
     serializer_class = CouponSerializer
+    filter_backends = [OrderingFilter]
+    ordering_fields = ['id']
     pagination_class = Pagination
     http_method_names = ["get", "post", "patch", "delete"]
 
     @extend_schema(
         summary="Retrieve a list of coupons",
         description="This endpoint returns a list of all coupons.",
+        parameters=[
+            OpenApiParameter(
+                name="ordering",
+                description="Ordering by ID (id - for ascending order, -id for descending)",
+                required=False,
+                type=str,
+            )
+        ],
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)

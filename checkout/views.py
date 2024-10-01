@@ -1,3 +1,4 @@
+from rest_framework.filters import OrderingFilter
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import status, generics, viewsets
 from rest_framework.exceptions import ValidationError
@@ -72,6 +73,8 @@ class OrderListView(viewsets.ModelViewSet):
     permission_classes = (IsAdminUser,)
     pagination_class = Pagination
     filterset_class = OrderFilter
+    filter_backends = [OrderingFilter]
+    ordering_fields = ['id']
 
     queryset = Order.objects.all().select_related("customer")
     http_method_names = ["get", "patch", "delete", "head", "options"]
@@ -84,6 +87,14 @@ class OrderListView(viewsets.ModelViewSet):
     @extend_schema(
         summary="Retrieve a list of orders",
         description="This endpoint returns a list of all orders.",
+        parameters=[
+            OpenApiParameter(
+                name="ordering",
+                description="Ordering by ID (id - for ascending order, -id for descending)",
+                required=False,
+                type=str,
+            )
+        ],
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
