@@ -37,10 +37,10 @@ class ListCategories(ListAPIView):
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     pagination_class = Pagination
-    filter_backends = [DjangoFilterBackend,]
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    ordering_fields = ["id"]
     filterset_class = CategoryFilter
     permission_classes = (IsAdminUserOrReadOnly,)
-    filterset_class = CategoryFilter
 
     def get_serializer_class(self):
         if self.action == "upload_image":
@@ -54,6 +54,12 @@ class CategoryViewSet(viewsets.ModelViewSet):
             OpenApiParameter(
                 name="name",
                 description="Search by category name.",
+                required=False,
+                type=str,
+            ),
+            OpenApiParameter(
+                name="ordering",
+                description="Ordering by ID (id - for ascending order, -id for descending)",
                 required=False,
                 type=str,
             )
@@ -146,7 +152,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     pagination_class = Pagination
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_class = ProductFilter
-    ordering_fields = ["views", "price"]
+    ordering_fields = ["views", "price", "id"]
     http_method_names = ["get", "post", "patch", "delete", "head", "options"]
 
     def get_serializer_class(self):
@@ -178,7 +184,7 @@ class ProductViewSet(viewsets.ModelViewSet):
             ),
             OpenApiParameter(
                 name="ordering",
-                description="Sort by fields: 'views' (popular product), 'price'. Use '-' for descending order.",
+                description="Sort by fields: 'views' (popular product), 'price', 'id'. Use '-' for descending order.",
                 required=False,
                 type=str,
             ),
