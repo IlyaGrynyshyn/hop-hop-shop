@@ -118,7 +118,7 @@ class PaymentService:
             data = {"payment_id": payment["payment_method"]}
             return Response(data=data, status=status.HTTP_200_OK)
         except stripe.error.CardError as e:
-            raise StripeCardError(detail=str(e))
+            raise StripeCardError(detail=str(e.user_message))
 
         except stripe.error.RateLimitError as e:
             raise StripeRateLimitError(detail=str(e))
