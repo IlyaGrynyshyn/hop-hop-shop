@@ -84,7 +84,7 @@ class OrderService:
             {
                 "product": Product.objects.get(id=item["product"]["id"]),
                 "quantity": item["quantity"],
-                "price": item["price"],
+                "price": item["price"] * item["quantity"],
             }
             for item in self.cart_service
         ]
