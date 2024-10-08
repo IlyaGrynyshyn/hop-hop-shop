@@ -121,30 +121,6 @@ class CategoryViewSet(viewsets.ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@extend_schema_view(
-    list=extend_schema(
-        parameters=[
-            OpenApiParameter(
-                name="category",
-                description="Specify the category slug to filter the products.",
-                required=False,
-                type=str,
-            ),
-            OpenApiParameter(
-                name="name",
-                description="Search by product name",
-                required=False,
-                type=str,
-            ),
-            OpenApiParameter(
-                name="ordering",
-                description="Sort by fields: 'views' (popular product ), 'price'. Use '-' for short order.",
-                required=False,
-                type=str,
-            ),
-        ],
-    ),
-)
 @extend_schema(tags=["products"])
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.select_related("category").all()
@@ -168,17 +144,30 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     @extend_schema(
         summary="Retrieve a list of products",
-        description="This endpoint returns a list of products. You can filter by category slug and product name, and sort by fields such as 'views' or 'price'.",
+        description="This endpoint returns a list of products. You can filter by category slug and product name, "
+                    "and sort by fields such as 'views', 'price', 'id'.",
         parameters=[
             OpenApiParameter(
                 name="category",
-                description="Specify the category slug to filter the products.",
+                description="Specify the category id to filter the products.",
                 required=False,
                 type=str,
             ),
             OpenApiParameter(
                 name="name",
                 description="Search by product name.",
+                required=False,
+                type=str,
+            ),
+            OpenApiParameter(
+                name="price_min",
+                description="Filter products within a price range. Select the start of the range.",
+                required=False,
+                type=str,
+            ),
+            OpenApiParameter(
+                name="price_max",
+                description="Filter products within a price range. Select the end of the range.",
                 required=False,
                 type=str,
             ),
