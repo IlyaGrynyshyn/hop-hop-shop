@@ -174,6 +174,10 @@ class DashboardStatisticSerializer(serializers.Serializer):
     active_orders = serializers.IntegerField()
     completed_orders = serializers.IntegerField()
     returned_orders = serializers.IntegerField()
+    total_orders_growth = serializers.FloatField()
+    active_orders_growth = serializers.FloatField()
+    completed_orders_growth = serializers.FloatField()
+    returned_orders_growth = serializers.FloatField()
 
     def create(self, validated_data):
         return DashboardStatistic(**validated_data)
