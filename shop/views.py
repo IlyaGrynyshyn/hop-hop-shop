@@ -1,3 +1,4 @@
+from django.db.models import Min, Max
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, OpenApiParameter, extend_schema_view
 from rest_framework import viewsets, status
@@ -180,7 +181,14 @@ class ProductViewSet(viewsets.ModelViewSet):
         ],
     )
     def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
+        response = super().list(request, *args, **kwargs)
+
+        price_range = self.get_queryset().aggregate(min_price=Min('price'), max_price=Max('price'))
+
+        response.data['min_price'] = price_range['min_price']
+        response.data['max_price'] = price_range['max_price']
+
+        return response
 
     @extend_schema(
         summary="Create a new product",
