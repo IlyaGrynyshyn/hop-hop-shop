@@ -181,11 +181,9 @@ class ProductViewSet(viewsets.ModelViewSet):
         ],
     )
     def list(self, request, *args, **kwargs):
-        filtered_queryset = self.filter_queryset(self.get_queryset())
-
         response = super().list(request, *args, **kwargs)
 
-        price_range = filtered_queryset.aggregate(min_price=Min('price'), max_price=Max('price'))
+        price_range = self.get_queryset().aggregate(min_price=Min('price'), max_price=Max('price'))
 
         response.data['min_price'] = price_range['min_price']
         response.data['max_price'] = price_range['max_price']
