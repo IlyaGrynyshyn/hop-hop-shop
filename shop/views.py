@@ -254,8 +254,9 @@ class ProductViewSet(viewsets.ModelViewSet):
     )
     def upload_images(self, request, pk=None):
         product = self.get_object()
+
         serializer = ProductImageUploadSerializer(
-            data=request.data, context={"product": product}
+            instance=product, data=request.data, context={"product": product}
         )
 
         if serializer.is_valid():
