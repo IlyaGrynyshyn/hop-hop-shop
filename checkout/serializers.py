@@ -112,8 +112,6 @@ class OrderSerializer(serializers.ModelSerializer):
             "last_name",
             "email",
             "phone",
-            "shipping_country",
-            "shipping_city",
             "shipping_address",
             "shipping_postcode",
             "payment_id",
