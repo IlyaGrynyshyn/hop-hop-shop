@@ -17,7 +17,7 @@ from authentication.serializers import (
     ResetPasswordSerializer, ResetPasswordRequestSerializer, RegistrationSerializer,
 )
 from checkout.models import Order
-from checkout.serializers import OrderSerializer
+from checkout.serializers import OrderSerializer, OrderListSerializer
 from utils.custom_exceptions import InvalidCredentialsError
 from utils.pagination import Pagination
 
@@ -244,6 +244,11 @@ class ProfileOrder(viewsets.ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated,)
     pagination_class = Pagination
     serializer_class = OrderSerializer
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return OrderListSerializer
+        return OrderSerializer
 
     def get_queryset(self):
         return Order.objects.filter(customer=self.request.user).select_related("customer")
