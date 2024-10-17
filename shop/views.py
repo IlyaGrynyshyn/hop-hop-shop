@@ -16,7 +16,7 @@ from shop.serializers import (
     ProductDetailSerializer,
     CategoryImageSerializer,
     ProductCreateUpdateSerializer,
-    ProductImageUploadSerializer,
+    ProductImageUploadSerializer, ChangeImageOrderingSerializer,
 )
 from utils.pagination import Pagination
 from utils.permissions import IsAdminUserOrReadOnly
@@ -141,6 +141,8 @@ class ProductViewSet(viewsets.ModelViewSet):
             return ProductCreateUpdateSerializer
         elif self.action == "upload_images":
             return ProductImageUploadSerializer
+        elif self.action == "change_ordering":
+            return ChangeImageOrderingSerializer
         return ProductSerializer
 
     @extend_schema(
@@ -284,6 +286,31 @@ class ProductViewSet(viewsets.ModelViewSet):
             return Response(
                 {"detail": "Image not found."}, status=status.HTTP_404_NOT_FOUND
             )
+
+    @extend_schema(
+        summary="Change the order of product images",
+        description="This endpoint allows changing the order of a product's images by passing an ordered list of image IDs."
+    )
+    @action(
+        methods=["POST"],
+        detail=True,
+        url_path="change-ordering",
+        permission_classes=[IsAdminUser],
+    )
+    def change_ordering(self, request, pk=None):
+        product = self.get_object()
+        serializer = ChangeImageOrderingSerializer(data=request.data, context=product)
+
+        serializer.is_valid(raise_exception=True)
+
+        image_ids = serializer.validated_data.get("image_ids")
+
+        for order, image_id in enumerate(image_ids):
+            ProductImage.objects.filter(id=image_id, product=product).update(order=order)
+
+        return Response({"detail": "Image ordering updated successfully"}, status=status.HTTP_200_OK)
+
+
 
     @extend_schema(
         summary="Update a product image",
